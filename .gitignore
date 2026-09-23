@@ -1,8 +1,129 @@
-# Visual Studio / .NET build artifacts
-.vs/
-bin/
-obj/
-.dotnet-cli/
+###############################################################################
+# .gitignore for C# / .NET projects
+# Based on GitHub's official VisualStudio.gitignore template
+###############################################################################
 
-# Log files
+# ── Build outputs ─────────────────────────────────────────────────────────────
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# ── Visual Studio IDE files ───────────────────────────────────────────────────
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ── NuGet packages ────────────────────────────────────────────────────────────
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ── .NET CLI / SDK tools ──────────────────────────────────────────────────────
+.dotnet-cli/
+.dotnet/
+*.dotSettings.user
+.toolmanifest
+
+# ── Rider IDE ─────────────────────────────────────────────────────────────────
+.idea/
+*.sln.iml
+
+# ── VS Code ───────────────────────────────────────────────────────────────────
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# ── Test results ──────────────────────────────────────────────────────────────
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+# ── Coverage ──────────────────────────────────────────────────────────────────
+*.coveragexml
+*.coverage
+*.opencover.xml
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+.ncrunchsolution
+
+# ── Publish ───────────────────────────────────────────────────────────────────
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+*.pidb
+*.svd
+*.userprefs
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.ncb
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
 *.log
+*.tlog
+*.vsix
+*.pidb
+
+# ── Windows ───────────────────────────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride

@@ -46,8 +46,8 @@ function Log($msg) {
 }
 
 function Run-Git {
-    param([string[]]$Args)
-    $output = & $GIT_EXE @Args 2>&1
+    param([string[]]$GitArgs)
+    $output = & $GIT_EXE @GitArgs 2>&1
     return @{ Output = $output; ExitCode = $LASTEXITCODE }
 }
 

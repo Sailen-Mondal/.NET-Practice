@@ -15,5 +15,7 @@ namespace ConsoleAppForPractice
         //class Dog : Animal
         //{
         //}
+
+
     }
 }

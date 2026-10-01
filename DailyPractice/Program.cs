@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,9 +31,34 @@ namespace DailyPractice
         static async Task<string> FetchDataAsync()
         {
             // Simulates a 2-second long-running network or database call
-            await Task.Delay(4000);
+            //await Task.Delay(4000);
 
             return "Hello from the database!";
+
+            string connectionString = "Data Source=.;Initial Catalog=BikeStore;User Id=sa;Password=mcc#1234";
+
+            string connectString = ConfigurationManager.ConnectionStrings["DBConn"].ConnectionString;
+            using (SqlConnection connection = new SqlConnection(connectString))
+            {
+                connection.Open();
+                // Perform database operations here
+                string query = "SELECT TOP (1000) [department_id],[department_name],[head_of_department],[phone_extension] FROM [BikeStores].[dbo].[Departments]\r\n";
+                {
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Console.WriteLine($"Department ID: {reader["department_id"]}, Name: {reader["department_name"]}, Head: {reader["head_of_department"]}, Phone: {reader["phone_extension"]}");
+                            }
+                        }
+
+                        Console.WriteLine("Press any key to exit...");
+                        Console.ReadKey(true);
+                    }
+                }
+            }
         }
     }
 }

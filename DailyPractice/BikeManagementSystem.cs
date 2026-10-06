@@ -77,7 +77,7 @@ namespace DailyPractice
         /// </summary>
         private void DisplayMenu()
         {
-            Console.Clear();
+            SafeConsoleClear();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("==================================================");
             Console.WriteLine("           BIKE SHOP MANAGEMENT SYSTEM            ");
@@ -373,6 +373,21 @@ namespace DailyPractice
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"[ERROR] {message}");
             Console.ResetColor();
+        }
+
+        private static void SafeConsoleClear()
+        {
+            try
+            {
+                if (!Console.IsOutputRedirected)
+                {
+                    Console.Clear();
+                }
+            }
+            catch
+            {
+                // Silently ignore if console handle is not available in non-interactive environment
+            }
         }
 
         #endregion

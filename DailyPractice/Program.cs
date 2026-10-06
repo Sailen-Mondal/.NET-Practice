@@ -31,7 +31,7 @@ namespace DailyPractice
             bool exit = false;
             while (!exit)
             {
-                Console.Clear();
+                SafeConsoleClear();
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("==================================================");
                 Console.WriteLine("        .NET DAILY PRACTICE & MANAGEMENT          ");
@@ -82,7 +82,7 @@ namespace DailyPractice
         /// </summary>
         public static async Task RunDemonstrationsAsync()
         {
-            Console.Clear();
+            SafeConsoleClear();
             Console.WriteLine("==================================================");
             Console.WriteLine("           .NET DAILY PRACTICE DEMOS              ");
             Console.WriteLine("==================================================\n");
@@ -145,6 +145,21 @@ namespace DailyPractice
             }
 
             return $"Successfully loaded {count} departments asynchronously.";
+        }
+
+        private static void SafeConsoleClear()
+        {
+            try
+            {
+                if (!Console.IsOutputRedirected)
+                {
+                    Console.Clear();
+                }
+            }
+            catch
+            {
+                // Silently ignore if console handle is not available in non-interactive environment
+            }
         }
     }
 }

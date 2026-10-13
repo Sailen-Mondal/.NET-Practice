@@ -9,36 +9,58 @@
 
 namespace WebApplication1
 {
-
-
     public partial class WebForm2
     {
-
-        /// <summary>
-        /// form1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+        protected global::System.Web.UI.WebControls.ValidationSummary ValidationSummary1;
 
-        /// <summary>
-        /// Password control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Password;
+        // First Name
+        protected global::System.Web.UI.WebControls.Label lblFirstName;
+        protected global::System.Web.UI.WebControls.TextBox txtFirstName;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvFirstName;
 
-        /// <summary>
-        /// UserName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label UserName;
+        // Last Name
+        protected global::System.Web.UI.WebControls.Label lblLastName;
+        protected global::System.Web.UI.WebControls.TextBox txtLastName;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLastName;
+
+        // Email
+        protected global::System.Web.UI.WebControls.Label lblEmail;
+        protected global::System.Web.UI.WebControls.TextBox txtEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvEmail;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revEmail;
+
+        // Age
+        protected global::System.Web.UI.WebControls.Label lblAge;
+        protected global::System.Web.UI.WebControls.TextBox txtAge;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAge;
+        protected global::System.Web.UI.WebControls.RangeValidator rvAge;
+
+        // City
+        protected global::System.Web.UI.WebControls.Label lblCity;
+        protected global::System.Web.UI.WebControls.TextBox txtCity;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvCity;
+        protected global::System.Web.UI.WebControls.CustomValidator cvCity;
+
+        // Date Of Joining
+        protected global::System.Web.UI.WebControls.Label lblDateOfJoining;
+        protected global::System.Web.UI.WebControls.TextBox txtDateOfJoining;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvDate;
+
+        // Salary
+        protected global::System.Web.UI.WebControls.Label lblSalary;
+        protected global::System.Web.UI.WebControls.TextBox txtSalary;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvSalary;
+
+        // Confirm Salary
+        protected global::System.Web.UI.WebControls.Label lblConfirmSalary;
+        protected global::System.Web.UI.WebControls.TextBox txtConfirmSalary;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvConfirmSalary;
+        protected global::System.Web.UI.WebControls.CompareValidator cvSalaryMatch;
+
+        // Actions & Feedback
+        protected global::System.Web.UI.WebControls.Button btnSubmit;
+        protected global::System.Web.UI.WebControls.Label lblMessage;
+        protected global::System.Web.UI.WebControls.GridView gvEmployees;
     }
 }

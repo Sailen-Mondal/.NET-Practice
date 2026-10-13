@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,11 +11,47 @@ namespace WebApplication1
 {
     public class Global : HttpApplication
     {
+        // Runs when the application starts
         void Application_Start(object sender, EventArgs e)
         {
-            // Code that runs on application startup
+            // Existing application configuration
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            // Initialize online user count
+            Application["OnlineUsers"] = 0;
+        }
+
+        // Runs when a new user session starts
+        void Session_Start(object sender, EventArgs e)
+        {
+            Application.Lock();
+
+            try
+            {
+                Application["OnlineUsers"] =
+                    (int)Application["OnlineUsers"] + 1;
+            }
+            finally
+            {
+                Application.UnLock();
+            }
+        }
+
+        // Runs when a session ends
+        void Session_End(object sender, EventArgs e)
+        {
+            Application.Lock();
+
+            try
+            {
+                Application["OnlineUsers"] =
+                    (int)Application["OnlineUsers"] - 1;
+            }
+            finally
+            {
+                Application.UnLock();
+            }
         }
     }
 }

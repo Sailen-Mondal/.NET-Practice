@@ -4,48 +4,25 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title></title>
-    <style type="text/css">
-        .auto-style1 {
-            width: 100%;
-        }
-        .auto-style2 {
-            height: 23px;
-        }
-        .auto-style3 {
-            width: 250px;
-        }
-        .auto-style4 {
-            height: 23px;
-            width: 250px;
-        }
-    </style>
+    <title>WebForm1</title>
 </head>
 <body>
     <form id="form1" runat="server">
-        <table class="auto-style1">
-            <tr>
-                <td class="auto-style3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User Name</td>
-                <td>
-                    <asp:TextBox ID="TextBox2" runat="server"></asp:TextBox>
-                </td>
-                <td>&nbsp;</td>
-            </tr>
-            <tr>
-                <td class="auto-style4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Password</td>
-                <td class="auto-style2">
-                    <asp:TextBox ID="lblUsername" runat="server"></asp:TextBox>
-                </td>
-                <td class="auto-style2"></td>
-            </tr>
-            <tr>
-                <td class="auto-style3">&nbsp;</td>
-                <td>
-                    <asp:Button ID="Button1" runat="server" style="margin-left: 39px" Text="Button" />
-                </td>
-                <td>&nbsp;</td>
-            </tr>
-        </table>
+        <div style="font-family: Arial; padding: 20px;">
+            <h3>State Management - ViewState Demo</h3>
+
+            <!-- 1. Without ViewState -->
+            <b>Without ViewState (Stuck at 1):</b><br />
+            <asp:TextBox ID="TextBox1" runat="server"></asp:TextBox>
+            <asp:Button ID="Button1" runat="server" Text="Click Me" OnClick="Button1_Click" />
+
+            <br /><br /><br />
+
+            <!-- 2. With ViewState -->
+            <b>With ViewState (Increments):</b><br />
+            <asp:TextBox ID="TextBox2" runat="server"></asp:TextBox>
+            <asp:Button ID="Button2" runat="server" Text="Click Me" OnClick="Button2_Click" />
+        </div>
     </form>
 </body>
 </html>

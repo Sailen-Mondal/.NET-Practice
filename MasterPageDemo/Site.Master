@@ -1,0 +1,413 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="MasterPageDemo.SiteMaster" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> – MySite</title>
+
+    <style>
+        /* ── Fonts ── */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        /* ── Reset ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ── Root tokens (Notion palette) ── */
+        :root {
+            --bg:           #ffffff;
+            --bg-secondary: #f7f6f3;
+            --bg-hover:     #efefed;
+            --border:       #e9e9e7;
+            --text:         #37352f;
+            --text-muted:   #9b9a97;
+            --text-light:   #6b6b6b;
+            --accent:       #2383e2;
+            --sidebar-w:    240px;
+            --topbar-h:     45px;
+            --radius:       4px;
+            --font:         'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 15px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ════════════════════════════════════════
+           MASTER — TOP BAR
+           ════════════════════════════════════════ */
+        .topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--topbar-h);
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+            gap: 12px;
+        }
+        .topbar-brand {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+        .topbar-sep {
+            color: var(--border);
+            font-size: 18px;
+            font-weight: 300;
+            line-height: 1;
+        }
+        .topbar-page {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ── Search bar (right side of topbar) ── */
+        .topbar-search {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .search-input {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 5px 10px 5px 30px;
+            font-size: 13px;
+            font-family: var(--font);
+            color: var(--text);
+            background: var(--bg-secondary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239b9a97' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") no-repeat 10px center;
+            width: 210px;
+            outline: none;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .search-input:focus {
+            border-color: #aaa;
+            background-color: var(--bg);
+        }
+        .search-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 5px 12px;
+            font-size: 13px;
+            font-family: var(--font);
+            color: var(--text);
+            cursor: pointer;
+            transition: background 0.12s;
+            white-space: nowrap;
+        }
+        .search-btn:hover { background: var(--bg-hover); }
+
+        /* ════════════════════════════════════════
+           MASTER — SIDEBAR
+           ════════════════════════════════════════ */
+        .sidebar {
+            position: fixed;
+            top: var(--topbar-h);
+            left: 0;
+            width: var(--sidebar-w);
+            height: calc(100% - var(--topbar-h));
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 12px 8px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .sidebar-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 6px 10px 4px;
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 400;
+            transition: background 0.12s;
+        }
+        .sidebar a:hover { background: var(--bg-hover); }
+        .sidebar a.active {
+            background: var(--bg-hover);
+            font-weight: 500;
+        }
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.55;
+            flex-shrink: 0;
+        }
+
+        /* ════════════════════════════════════════
+           MASTER — MAIN CONTENT SHELL
+           ════════════════════════════════════════ */
+        .main {
+            margin-left: var(--sidebar-w);
+            margin-top: var(--topbar-h);
+            min-height: calc(100vh - var(--topbar-h));
+            padding: 60px 96px;
+            max-width: 960px;
+        }
+
+        /* ════════════════════════════════════════
+           CONTENT PAGE TYPOGRAPHY
+           ════════════════════════════════════════ */
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+        .page-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+        }
+        .notion-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 28px 0;
+        }
+        .notion-h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            margin-top: 28px;
+        }
+        .notion-p {
+            font-size: 15px;
+            color: var(--text-light);
+            line-height: 1.75;
+            margin-bottom: 10px;
+        }
+        .notion-callout {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            font-size: 14px;
+            color: var(--text-light);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .callout-icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.5;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .notion-list {
+            padding-left: 22px;
+            color: var(--text-light);
+            font-size: 15px;
+            line-height: 2;
+        }
+        .notion-list li::marker { color: var(--text-muted); }
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 85%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1px 5px;
+            color: var(--text);
+        }
+        .notion-quote {
+            border-left: 3px solid var(--border);
+            padding: 4px 16px;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-style: italic;
+            margin: 20px 0;
+        }
+        .notion-tag {
+            display: inline-block;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-size: 12px;
+            padding: 2px 8px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ════════════════════════════════════════
+           GRIDVIEW STYLES
+           ════════════════════════════════════════ */
+        .gv-wrap {
+            margin-top: 16px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .gv-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .gv-wrap th {
+            text-align: left;
+            padding: 9px 14px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+        .gv-wrap td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            vertical-align: top;
+            font-size: 14px;
+        }
+        .gv-wrap tr:last-child td { border-bottom: none; }
+        .gv-wrap tbody tr:hover td { background: var(--bg-secondary); }
+
+        /* Empty state */
+        .gv-empty td {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            border-bottom: none !important;
+            background: none !important;
+        }
+
+        /* Search result badge shown above GridView */
+        .search-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 5px 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .search-badge a {
+            color: var(--text-muted);
+            text-decoration: none;
+            border-bottom: 1px solid var(--border);
+        }
+        .search-badge a:hover { color: var(--text); }
+
+        /* Row count badge */
+        .gv-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* ════════════════════════════════════════
+           MASTER — SIDEBAR FOOTER
+           ════════════════════════════════════════ */
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 12px 10px 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <form runat="server">
+
+        <%-- ════ MASTER: TOP BAR ════ --%>
+        <div class="topbar">
+            <span class="topbar-brand">MySite</span>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-page"><%: Page.Title %></span>
+
+            <%-- Search bar — pushed to the right --%>
+            <div class="topbar-search">
+                <asp:TextBox
+                    ID="SearchBox"
+                    runat="server"
+                    CssClass="search-input"
+                    placeholder="Search this page..."
+                    MaxLength="100" />
+                <asp:Button
+                    ID="SearchButton"
+                    runat="server"
+                    CssClass="search-btn"
+                    Text="Search"
+                    OnClick="SearchButton_Click" />
+            </div>
+        </div>
+
+        <%-- ════ MASTER: SIDEBAR ════ --%>
+        <aside class="sidebar">
+            <div class="sidebar-label">Pages</div>
+
+            <a runat="server" href="~/">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                Home
+            </a>
+
+            <a runat="server" href="~/About.aspx">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                About
+            </a>
+
+            <a runat="server" href="~/Contact.aspx">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                </svg>
+                Contact
+            </a>
+
+            <div class="sidebar-footer">
+                ASP.NET Master Page Demo &middot; <%: DateTime.Now.Year %>
+            </div>
+        </aside>
+
+        <%-- ════ CONTENT PLACEHOLDER ════ --%>
+        <main class="main">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+        </main>
+
+    </form>
+</body>
+</html>

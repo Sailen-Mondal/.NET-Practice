@@ -1,0 +1,44 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="CRUDUsingLINQ.SiteMaster" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - LINQ Learning Lab</title>
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+</head>
+<body>
+    <form runat="server">
+        <asp:ScriptManager runat="server" />
+
+        <header class="notion-navbar">
+            <div class="notion-navbar-container">
+                <a class="notion-brand" runat="server" href="~/">
+                    <span>CRUDUsingLINQ</span>
+                    <span class="notion-brand-badge">Learning Lab</span>
+                </a>
+                <nav>
+                    <ul class="notion-nav-links">
+                        <li><a class="notion-nav-link" runat="server" href="~/">CRUD (LINQ to SQL)</a></li>
+                        <li><a class="notion-nav-link" runat="server" href="~/LINQBasics.aspx">LINQ Basics & Ordering</a></li>
+                        <li><a class="notion-nav-link" runat="server" href="~/LINQGroupingJoins.aspx">Grouping & Joins</a></li>
+                        <li><a class="notion-nav-link" runat="server" href="~/LINQStoredProcs.aspx">Stored Procedures</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="notion-canvas">
+            <div class="notion-paper">
+                <asp:ContentPlaceHolder ID="MainContent" runat="server">
+                </asp:ContentPlaceHolder>
+            </div>
+            <footer class="notion-footer">
+                Language Integrated Query (LINQ) Educational Demo - Minimalist Notion Edition
+            </footer>
+        </main>
+    </form>
+</body>
+</html>

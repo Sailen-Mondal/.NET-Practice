@@ -1,0 +1,1 @@
+<%@ Application Codebehind="Global.asax.cs" Inherits="CRUDUsingLINQ.Global" Language="C#" %>

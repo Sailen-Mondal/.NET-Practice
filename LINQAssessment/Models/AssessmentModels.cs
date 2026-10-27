@@ -41,7 +41,7 @@ namespace LINQAssessment.Models
         public List<string> Prerequisites { get; set; } = new List<string>();
     }
 
-    // Realistic sample dataset (Indian context)
+    // sample dataset 
     public static class MockData
     {
         public static List<Student> GetStudents()

@@ -39,7 +39,7 @@ namespace LINQAssessment.Services
                                   Department = deptGroup.Key,
                                   StudentCount = deptGroup.Count()
                               };
-            */
+            */  
 
             return result;
         }

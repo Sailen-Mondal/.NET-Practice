@@ -1,0 +1,16 @@
+﻿
+
+DisplayName     : SAP Crystal Reports runtime engine for .NET Framework (64-bit)
+DisplayVersion  : 13.0.20.2399
+Publisher       : SAP
+InstallLocation : 
+InstallDate     : 20260907
+
+DisplayName     : SAP Crystal Reports, version for Microsoft Visual Studio
+DisplayVersion  : 13.0.20.2399
+Publisher       : SAP
+InstallLocation : 
+InstallDate     : 20260907
+
+
+

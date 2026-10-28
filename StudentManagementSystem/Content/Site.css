@@ -1,0 +1,743 @@
+/* ==========================================================================
+   Functional Premium: Notion x Apple Hybrid Design System
+   Combines Notion's modular, utilitarian database structure with
+   Apple's cinematic negative space, Bento Grid layouts, and fluid physics.
+   Strict rule: Zero Emojis.
+   ========================================================================== */
+
+:root {
+    --ap-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --ap-font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    
+    /* Functional Premium Canvas */
+    --ap-canvas: #fbfbfa;
+    --ap-surface: #ffffff;
+    --ap-surface-translucent: rgba(255, 255, 255, 0.88);
+    --ap-subtle-bg: #f5f5f7;
+    --ap-card-bg: #ffffff;
+    
+    /* Typography Palette */
+    --ap-text-primary: #1d1d1f;
+    --ap-text-secondary: #515154;
+    --ap-text-tertiary: #86868b;
+    --ap-text-quaternary: #a1a1a6;
+    
+    /* Precise 1px Borders */
+    --ap-border: rgba(0, 0, 0, 0.08);
+    --ap-border-subtle: #eaeaea;
+    --ap-border-strong: rgba(0, 0, 0, 0.14);
+    --ap-border-focus: #0071e3;
+    
+    /* Accent Palette */
+    --ap-accent: #0071e3;
+    --ap-accent-hover: #0077ed;
+    --ap-accent-light: #e8f2fc;
+    
+    /* Status Colors */
+    --ap-status-progress-bg: #e0f2fe;
+    --ap-status-progress-text: #0369a1;
+    --ap-status-progress-border: #bae6fd;
+
+    --ap-status-completed-bg: #dcfce7;
+    --ap-status-completed-text: #15803d;
+    --ap-status-completed-border: #bbf7d0;
+
+    --ap-status-planning-bg: #fef3c7;
+    --ap-status-planning-text: #b45309;
+    --ap-status-planning-border: #fde68a;
+
+    --ap-status-critical-bg: #ffe4e6;
+    --ap-status-critical-text: #be123c;
+    --ap-status-critical-border: #fecdd3;
+
+    /* Shadows */
+    --ap-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --ap-shadow-bento: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --ap-shadow-elevated: 0 8px 30px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+    --ap-shadow-focus: 0 0 0 3px rgba(0, 113, 227, 0.16);
+
+    /* Legacy compatibility aliases */
+    --sms-border-subtle: var(--ap-border-subtle);
+    --sms-text-muted: var(--ap-text-tertiary);
+    --sms-text-main: var(--ap-text-primary);
+    --sms-text-secondary: var(--ap-text-secondary);
+    --sms-bg-subtle: var(--ap-subtle-bg);
+}
+
+/* Base Document */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--ap-font-display);
+    color: var(--ap-text-primary);
+    background-color: var(--ap-canvas);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--ap-font-display);
+    color: var(--ap-text-primary);
+    letter-spacing: -0.025em;
+    font-weight: 600;
+}
+
+.body-content {
+    margin-top: 1.75rem;
+    margin-bottom: 4rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ==========================================================================
+   Apple Bento Grid System
+   ========================================================================== */
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.bento-box {
+    background: var(--ap-surface);
+    border: 1px solid var(--ap-border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--ap-shadow-bento);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.bento-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ap-shadow-elevated);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+.bento-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ap-text-tertiary);
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.bento-value {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--ap-text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+}
+
+.bento-subtitle {
+    font-size: 0.8rem;
+    color: var(--ap-text-secondary);
+    margin-top: 0.4rem;
+}
+
+/* ==========================================================================
+   Notion Modular Database Table & Sticky Actions
+   ========================================================================== */
+
+.notion-database-card {
+    background: var(--ap-surface);
+    border: 1px solid var(--ap-border);
+    border-radius: 14px;
+    box-shadow: var(--ap-shadow-bento);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.notion-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid var(--ap-border);
+    background: var(--ap-surface);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.notion-table-container {
+    overflow-x: auto;
+    width: 100%;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+}
+
+.notion-table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.875rem;
+}
+
+.notion-table th {
+    background: var(--ap-subtle-bg);
+    color: var(--ap-text-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--ap-border);
+    border-top: none;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.notion-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--ap-border-subtle);
+    color: var(--ap-text-primary);
+    vertical-align: middle;
+    background-color: var(--ap-surface);
+}
+
+.notion-table tbody tr {
+    transition: background-color 0.12s ease;
+}
+
+.notion-table tbody tr:hover td {
+    background-color: #fbfbfe;
+}
+
+.notion-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Sticky Action Column: Guarantees View, Edit, Delete are ALWAYS visible */
+.notion-table th.actions-col,
+.notion-table td.actions-col {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    text-align: right;
+    white-space: nowrap;
+    background-color: var(--ap-surface);
+    box-shadow: -4px 0 10px -2px rgba(0, 0, 0, 0.05);
+}
+
+.notion-table th.actions-col {
+    background-color: var(--ap-subtle-bg);
+}
+
+.notion-table tbody tr:hover td.actions-col {
+    background-color: #fbfbfe;
+}
+
+/* ==========================================================================
+   Pills & Tags
+   ========================================================================== */
+
+.ap-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    line-height: 1.35;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.ap-pill-progress {
+    background: var(--ap-status-progress-bg);
+    color: var(--ap-status-progress-text);
+    border-color: var(--ap-status-progress-border);
+}
+
+.ap-pill-completed {
+    background: var(--ap-status-completed-bg);
+    color: var(--ap-status-completed-text);
+    border-color: var(--ap-status-completed-border);
+}
+
+.ap-pill-planning {
+    background: var(--ap-status-planning-bg);
+    color: var(--ap-status-planning-text);
+    border-color: var(--ap-status-planning-border);
+}
+
+.ap-pill-critical {
+    background: var(--ap-status-critical-bg);
+    color: var(--ap-status-critical-text);
+    border-color: var(--ap-status-critical-border);
+}
+
+.ap-pill-neutral {
+    background: var(--ap-subtle-bg);
+    color: var(--ap-text-secondary);
+    border-color: var(--ap-border);
+}
+
+.ap-pill-category {
+    background: #f1f5f9;
+    color: #334155;
+    border-color: #cbd5e1;
+    font-family: var(--ap-font-mono);
+    font-size: 0.725rem;
+}
+
+/* ==========================================================================
+   Apple-Style Buttons & Interactive Micro-Moments
+   ========================================================================== */
+
+.btn-apple-primary {
+    background-color: var(--ap-text-primary);
+    color: #ffffff !important;
+    border: 1px solid var(--ap-text-primary);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 0.45rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-apple-primary:hover {
+    background-color: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.btn-apple-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-apple-secondary {
+    background-color: var(--ap-surface);
+    color: var(--ap-text-primary) !important;
+    border: 1px solid var(--ap-border-strong);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.825rem;
+    padding: 0.38rem 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-apple-secondary:hover {
+    background-color: var(--ap-subtle-bg);
+    border-color: rgba(0, 0, 0, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-apple-secondary:active {
+    transform: scale(0.98);
+}
+
+.btn-apple-danger {
+    background-color: #fee2e2;
+    color: #b91c1c !important;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.825rem;
+    padding: 0.38rem 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-apple-danger:hover {
+    background-color: #dc2626;
+    color: #ffffff !important;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* Action button group inside table */
+.action-btn-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.action-btn-group .btn-apple-secondary {
+    padding: 0.28rem 0.65rem;
+    font-size: 0.775rem;
+    line-height: 1.25;
+}
+
+.action-btn-group .btn-apple-danger {
+    padding: 0.28rem 0.65rem;
+    font-size: 0.775rem;
+    line-height: 1.25;
+}
+
+/* Forms & Clean Floating Inputs */
+.ap-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.ap-form-label {
+    display: block;
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: var(--ap-text-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.ap-form-control {
+    width: 100%;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+    color: var(--ap-text-primary);
+    background-color: var(--ap-surface);
+    border: 1px solid var(--ap-border-strong);
+    border-radius: 8px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    font-family: inherit;
+}
+
+.ap-form-control:focus {
+    outline: none;
+    border-color: var(--ap-border-focus);
+    box-shadow: var(--ap-shadow-focus);
+}
+
+/* Alert Banners */
+.ap-alert {
+    padding: 0.85rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.ap-alert-success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+
+.ap-alert-danger {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+/* ==========================================================================
+   Apple-Style Profile, Directory & Bento Cards
+   ========================================================================== */
+
+.apple-card {
+    background: var(--ap-surface);
+    border: 1px solid var(--ap-border);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--ap-shadow-bento);
+    margin-bottom: 2rem;
+}
+
+.apple-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f0f0f2 0%, #e4e4e8 100%);
+    color: var(--ap-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.apple-segmented-control {
+    display: inline-flex;
+    background: var(--ap-subtle-bg);
+    padding: 3px;
+    border-radius: 10px;
+    border: 1px solid var(--ap-border);
+    gap: 2px;
+}
+
+.apple-segmented-item {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--ap-text-secondary);
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.apple-segmented-item:hover {
+    color: var(--ap-text-primary);
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.apple-segmented-item.active {
+    background-color: var(--ap-surface);
+    color: var(--ap-text-primary);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.apple-callout {
+    background-color: var(--ap-subtle-bg);
+    border: 1px solid var(--ap-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.apple-callout-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ap-text-primary);
+    margin-bottom: 0.35rem;
+}
+
+.apple-callout-text {
+    font-size: 0.825rem;
+    color: var(--ap-text-secondary);
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* Key-Value Details Grid */
+.apple-kv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.85rem;
+    margin: 1.5rem 0;
+}
+
+.apple-kv-box {
+    background: var(--ap-subtle-bg);
+    border: 1px solid var(--ap-border);
+    border-radius: 10px;
+    padding: 0.85rem 1.15rem;
+}
+
+.apple-kv-label {
+    font-size: 0.725rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ap-text-tertiary);
+    margin-bottom: 0.25rem;
+}
+
+.apple-kv-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ap-text-primary);
+}
+
+/* ==========================================================================
+   Legacy SMS / Notion Compatibility Classes
+   ========================================================================== */
+
+.sms-card {
+    background: var(--ap-surface);
+    border: 1px solid var(--ap-border);
+    border-radius: 14px;
+    padding: 2rem;
+    box-shadow: var(--ap-shadow-bento);
+}
+
+.sms-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    line-height: 1.4;
+    background: var(--ap-subtle-bg);
+    color: var(--ap-text-secondary);
+    border: 1px solid var(--ap-border);
+}
+
+.sms-pill-blue {
+    background: var(--ap-accent-light);
+    color: var(--ap-accent);
+    border-color: #badcf8;
+}
+
+.sms-table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.sms-table {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.sms-table th {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--ap-border);
+    color: var(--ap-text-secondary);
+    font-weight: 600;
+    font-size: 0.825rem;
+    text-align: left;
+}
+
+.sms-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--ap-border-subtle);
+    color: var(--ap-text-primary);
+    vertical-align: middle;
+}
+
+.sms-table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.015);
+}
+
+.btn-notion-primary {
+    background-color: var(--ap-text-primary);
+    color: #ffffff !important;
+    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--ap-text-primary);
+}
+
+.btn-notion-outline {
+    background-color: transparent;
+    color: var(--ap-text-primary) !important;
+    border: 1px solid var(--ap-border-strong);
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem;
+    font-weight: 500;
+    font-size: 0.825rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-notion-outline:hover {
+    background-color: var(--ap-subtle-bg);
+}
+
+.btn-notion-outline.active {
+    background-color: var(--ap-text-primary);
+    color: #ffffff !important;
+    border-color: var(--ap-text-primary);
+}
+
+/* ==========================================================================
+   Navbar
+   ========================================================================== */
+
+.navbar-apple {
+    background-color: var(--ap-surface-translucent) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--ap-border);
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.navbar-apple .navbar-brand {
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+    color: var(--ap-text-primary) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-apple .nav-link {
+    color: var(--ap-text-secondary) !important;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.45rem 0.85rem !important;
+    border-radius: 8px;
+    transition: color 0.12s ease, background-color 0.12s ease;
+}
+
+.navbar-apple .nav-link:hover {
+    color: var(--ap-text-primary) !important;
+    background-color: rgba(0, 0, 0, 0.035);
+}
+
+.navbar-apple .nav-link.active {
+    color: var(--ap-text-primary) !important;
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Footer */
+.footer-apple {
+    color: var(--ap-text-tertiary);
+    font-size: 0.8rem;
+    padding-top: 2rem;
+    margin-top: 3.5rem;
+    border-top: 1px solid var(--ap-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .body-content {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .apple-card {
+        padding: 1.25rem;
+    }
+
+    .notion-toolbar {
+        padding: 1rem;
+    }
+
+    .bento-grid {
+        grid-template-columns: 1fr;
+    }
+}

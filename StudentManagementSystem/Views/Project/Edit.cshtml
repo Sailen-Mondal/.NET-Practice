@@ -1,0 +1,96 @@
+@model StudentManagementSystem.Models.Project
+
+@{
+    ViewBag.Title = "Edit Project - #" + Model.ProjectID;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <!-- Back Navigation -->
+        <div style="margin-bottom: 1.25rem;">
+            <a href="@Url.Action("Index")" class="btn-apple-secondary" style="font-size: 0.825rem;">&larr; Back to Projects Workspace</a>
+        </div>
+
+        <div class="apple-card">
+            <div style="border-bottom: 1px solid var(--ap-border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <span class="ap-pill ap-pill-neutral" style="margin-bottom: 0.5rem;">Database Update</span>
+                <h1 style="font-size: 1.6rem; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Edit Project Record</h1>
+                <p style="color: var(--ap-text-tertiary); font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0;">
+                    Modifying Project #@Model.ProjectID in [ProjectManagementDB].[dbo].[Projects]
+                </p>
+            </div>
+
+            @using (Html.BeginForm("Edit", "Project", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.ProjectID)
+                @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3", style = "font-size: 0.875rem;" })
+
+                <div class="ap-form-group">
+                    @Html.LabelFor(m => m.Title, new { @class = "ap-form-label" })
+                    @Html.TextBoxFor(m => m.Title, new { @class = "ap-form-control" })
+                    @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 ap-form-group">
+                        @Html.LabelFor(m => m.Category, new { @class = "ap-form-label" })
+                        @Html.DropDownListFor(m => m.Category, new SelectList(new[] { "Web App", "Mobile App", "AI/Robotics", "Cloud Platform", "IoT/Embedded", "Data Pipeline" }, Model.Category), new { @class = "ap-form-control" })
+                        @Html.ValidationMessageFor(m => m.Category, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                    </div>
+                    <div class="col-md-6 ap-form-group">
+                        @Html.LabelFor(m => m.LeadStudent, new { @class = "ap-form-label" })
+                        @Html.TextBoxFor(m => m.LeadStudent, new { @class = "ap-form-control" })
+                        @Html.ValidationMessageFor(m => m.LeadStudent, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 ap-form-group">
+                        @Html.LabelFor(m => m.Status, new { @class = "ap-form-label" })
+                        @Html.DropDownListFor(m => m.Status, new SelectList(new[] { "Planning", "In Progress", "Completed", "On Hold" }, Model.Status), new { @class = "ap-form-control" })
+                        @Html.ValidationMessageFor(m => m.Status, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                    </div>
+                    <div class="col-md-6 ap-form-group">
+                        @Html.LabelFor(m => m.Priority, new { @class = "ap-form-label" })
+                        @Html.DropDownListFor(m => m.Priority, new SelectList(new[] { "Low", "Medium", "High", "Critical" }, Model.Priority), new { @class = "ap-form-control" })
+                        @Html.ValidationMessageFor(m => m.Priority, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 ap-form-group">
+                        @Html.LabelFor(m => m.Budget, new { @class = "ap-form-label" })
+                        @Html.TextBoxFor(m => m.Budget, new { @class = "ap-form-control", type = "number", step = "100" })
+                        @Html.ValidationMessageFor(m => m.Budget, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                    </div>
+                    <div class="col-md-4 ap-form-group">
+                        @Html.LabelFor(m => m.StartDate, new { @class = "ap-form-label" })
+                        @Html.TextBoxFor(m => m.StartDate, "{0:yyyy-MM-dd}", new { @class = "ap-form-control", type = "date" })
+                        @Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                    </div>
+                    <div class="col-md-4 ap-form-group">
+                        @Html.LabelFor(m => m.EndDate, new { @class = "ap-form-label" })
+                        @Html.TextBoxFor(m => m.EndDate, "{0:yyyy-MM-dd}", new { @class = "ap-form-control", type = "date" })
+                        @Html.ValidationMessageFor(m => m.EndDate, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                    </div>
+                </div>
+
+                <div class="ap-form-group">
+                    @Html.LabelFor(m => m.Description, new { @class = "ap-form-label" })
+                    @Html.TextAreaFor(m => m.Description, new { @class = "ap-form-control", rows = "3" })
+                    @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger", style = "font-size: 0.8rem;" })
+                </div>
+
+                <div style="margin-top: 2rem; border-top: 1px solid var(--ap-border); padding-top: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+                    @Html.ActionLink("Cancel", "Index", null, new { @class = "btn-apple-secondary" })
+                    <button type="submit" class="btn-apple-primary">Update Project</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

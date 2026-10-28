@@ -1,0 +1,54 @@
+@model StudentManagementSystem.Models.Project
+
+@{
+    ViewBag.Title = "Delete Project - #" + Model.ProjectID;
+}
+
+<div class="row justify-content-center" style="margin-top: 1rem;">
+    <div class="col-md-8 col-lg-6">
+        <div class="apple-card" style="border-color: rgba(220, 38, 38, 0.25);">
+            <div style="border-bottom: 1px solid var(--ap-border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <span class="ap-pill ap-pill-critical" style="margin-bottom: 0.5rem;">Confirm Permanent Deletion</span>
+                <h1 style="font-size: 1.6rem; font-weight: 700; margin: 0; color: #b91c1c; letter-spacing: -0.02em;">Delete Project Record</h1>
+                <p style="color: var(--ap-text-tertiary); font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0;">
+                    Are you sure you want to permanently delete this project from [ProjectManagementDB]?
+                </p>
+            </div>
+
+            <!-- Bento Mini Grid Summary of Project to be deleted -->
+            <div class="apple-kv-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 1.5rem;">
+                <div class="apple-kv-box">
+                    <div class="apple-kv-label">Project ID</div>
+                    <div class="apple-kv-value" style="font-family: var(--ap-font-mono);">#@Model.ProjectID</div>
+                </div>
+                <div class="apple-kv-box">
+                    <div class="apple-kv-label">Lead Student</div>
+                    <div class="apple-kv-value">@Model.LeadStudent</div>
+                </div>
+                <div class="apple-kv-box" style="grid-column: span 2;">
+                    <div class="apple-kv-label">Project Title</div>
+                    <div class="apple-kv-value" style="font-size: 1rem;">@Model.Title</div>
+                </div>
+                <div class="apple-kv-box">
+                    <div class="apple-kv-label">Category</div>
+                    <div class="apple-kv-value"><span class="ap-pill ap-pill-category">@Model.Category</span></div>
+                </div>
+                <div class="apple-kv-box">
+                    <div class="apple-kv-label">Allocated Budget</div>
+                    <div class="apple-kv-value" style="font-family: var(--ap-font-mono);">INR @Model.Budget.ToString("N2")</div>
+                </div>
+            </div>
+
+            @using (Html.BeginForm("Delete", "Project", new { id = Model.ProjectID }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--ap-border); padding-top: 1.25rem;">
+                    @Html.ActionLink("Cancel & Return", "Index", null, new { @class = "btn-apple-secondary" })
+                    <button type="submit" class="btn-apple-danger" style="padding: 0.45rem 1.25rem; font-size: 0.875rem;">
+                        Confirm Permanent Deletion
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

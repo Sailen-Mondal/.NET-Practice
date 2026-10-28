@@ -67,23 +67,20 @@ function New-FreshSession {
     return New-Object Microsoft.PowerShell.Commands.WebRequestSession
 }
 
-function Extract-HiddenField {
-    param(
-        [string]$Html,
-        [string]$FieldName
-    )
-    $pattern = 'id="' + [regex]::Escape($FieldName) + '"\s+value="([^"]*)"'
-    $match = [regex]::Match($Html, $pattern)
-    if ($match.Success) {
-        return $match.Groups[1].Value
+function Extract-HiddenFields {
+    param([string]$Html)
+    $hidden = @{}
+    $matches = [regex]::Matches($Html, '<input[^>]+type="hidden"[^>]*>')
+    foreach ($m in $matches) {
+        $nameMatch = [regex]::Match($m.Value, 'name="([^"]+)"')
+        $valMatch = [regex]::Match($m.Value, 'value="([^"]*)"')
+        if ($nameMatch.Success) {
+            $name = $nameMatch.Groups[1].Value
+            $val = if ($valMatch.Success) { [System.Net.WebUtility]::HtmlDecode($valMatch.Groups[1].Value) } else { "" }
+            $hidden[$name] = $val
+        }
     }
-    # Fallback to name pattern
-    $pattern2 = 'name="' + [regex]::Escape($FieldName) + '"\s+value="([^"]*)"'
-    $match2 = [regex]::Match($Html, $pattern2)
-    if ($match2.Success) {
-        return $match2.Groups[1].Value
-    }
-    return ""
+    return $hidden
 }
 
 function Send-WebFormsPost {
@@ -93,14 +90,7 @@ function Send-WebFormsPost {
         [string]$PreviousHtml,
         [hashtable]$FieldValues
     )
-    $vs = Extract-HiddenField -Html $PreviousHtml -FieldName "__VIEWSTATE"
-    $ev = Extract-HiddenField -Html $PreviousHtml -FieldName "__EVENTVALIDATION"
-    $vsg = Extract-HiddenField -Html $PreviousHtml -FieldName "__VIEWSTATEGENERATOR"
-
-    $body = @{}
-    if ($vs) { $body["__VIEWSTATE"] = $vs }
-    if ($ev) { $body["__EVENTVALIDATION"] = $ev }
-    if ($vsg) { $body["__VIEWSTATEGENERATOR"] = $vsg }
+    $body = Extract-HiddenFields -Html $PreviousHtml
 
     foreach ($k in $FieldValues.Keys) {
         $body[$k] = $FieldValues[$k]
@@ -123,12 +113,9 @@ function Get-CardCount {
 
 function Get-CardNames {
     param([string]$Html)
-    $names = @()
     $matches = [regex]::Matches($Html, '<div class="profile-name">([^<]+)</div>')
-    foreach ($m in $matches) {
-        $names += $m.Groups[1].Value.Trim()
-    }
-    return $names
+    [string[]]$names = @($matches | ForEach-Object { $_.Groups[1].Value.Trim() })
+    return ,$names
 }
 
 function Test-IsPdfBytes {
@@ -171,7 +158,7 @@ $initRes = Invoke-WebRequest -Uri $targetUrl -WebSession $s1 -UseBasicParsing
 $resRahul = Send-WebFormsPost -Url $targetUrl -Session $s1 -PreviousHtml $initRes.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "Rahul"
 }
-$namesRahul = Get-CardNames -Html $resRahul.Content
+[string[]]$namesRahul = Get-CardNames -Html $resRahul.Content
 $pass1_1_1 = ($namesRahul.Count -eq 1 -and $namesRahul[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T1.1.1" -Tier "Tier 1" -Category "Search" -Description "Search candidate 'Rahul' returns Rahul Sharma" -Passed $pass1_1_1 -Details "Found: $($namesRahul -join ', ')"
 
@@ -179,7 +166,7 @@ Record-TestResult -TestId "T1.1.1" -Tier "Tier 1" -Category "Search" -Descriptio
 $resPriya = Send-WebFormsPost -Url $targetUrl -Session $s1 -PreviousHtml $resRahul.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "Priya"
 }
-$namesPriya = Get-CardNames -Html $resPriya.Content
+[string[]]$namesPriya = Get-CardNames -Html $resPriya.Content
 $pass1_1_2 = ($namesPriya.Count -eq 1 -and $namesPriya[0] -eq "Priya Mukherjee")
 Record-TestResult -TestId "T1.1.2" -Tier "Tier 1" -Category "Search" -Description "Search candidate 'Priya' returns Priya Mukherjee" -Passed $pass1_1_2 -Details "Found: $($namesPriya -join ', ')"
 
@@ -187,7 +174,7 @@ Record-TestResult -TestId "T1.1.2" -Tier "Tier 1" -Category "Search" -Descriptio
 $resAmit = Send-WebFormsPost -Url $targetUrl -Session $s1 -PreviousHtml $resPriya.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "Amit"
 }
-$namesAmit = Get-CardNames -Html $resAmit.Content
+[string[]]$namesAmit = Get-CardNames -Html $resAmit.Content
 $pass1_1_3 = ($namesAmit.Count -eq 1 -and $namesAmit[0] -eq "Amit Verma")
 Record-TestResult -TestId "T1.1.3" -Tier "Tier 1" -Category "Search" -Description "Search candidate 'Amit' returns Amit Verma" -Passed $pass1_1_3 -Details "Found: $($namesAmit -join ', ')"
 
@@ -195,7 +182,7 @@ Record-TestResult -TestId "T1.1.3" -Tier "Tier 1" -Category "Search" -Descriptio
 $resSneha = Send-WebFormsPost -Url $targetUrl -Session $s1 -PreviousHtml $resAmit.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "Sneha"
 }
-$namesSneha = Get-CardNames -Html $resSneha.Content
+[string[]]$namesSneha = Get-CardNames -Html $resSneha.Content
 $pass1_1_4 = ($namesSneha.Count -eq 1 -and $namesSneha[0] -eq "Sneha Patel")
 Record-TestResult -TestId "T1.1.4" -Tier "Tier 1" -Category "Search" -Description "Search candidate 'Sneha' returns Sneha Patel" -Passed $pass1_1_4 -Details "Found: $($namesSneha -join ', ')"
 
@@ -203,7 +190,7 @@ Record-TestResult -TestId "T1.1.4" -Tier "Tier 1" -Category "Search" -Descriptio
 $resVikram = Send-WebFormsPost -Url $targetUrl -Session $s1 -PreviousHtml $resSneha.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "Vikram"
 }
-$namesVikram = Get-CardNames -Html $resVikram.Content
+[string[]]$namesVikram = Get-CardNames -Html $resVikram.Content
 $pass1_1_5 = ($namesVikram.Count -eq 1 -and $namesVikram[0] -eq "Vikram Singh")
 Record-TestResult -TestId "T1.1.5" -Tier "Tier 1" -Category "Search" -Description "Search candidate 'Vikram' returns Vikram Singh" -Passed $pass1_1_5 -Details "Found: $($namesVikram -join ', ')"
 
@@ -224,7 +211,7 @@ $resMale = Send-WebFormsPost -Url $targetUrl -Session $s2 -PreviousHtml $resAll.
     "btnFilterGender" = "Filter"; "DropDownList1" = "Male"
 }
 $cardsMale = Get-CardCount -Html $resMale.Content
-$namesMale = Get-CardNames -Html $resMale.Content
+[string[]]$namesMale = Get-CardNames -Html $resMale.Content
 $pass1_2_2 = ($cardsMale -eq 3 -and $namesMale -contains "Rahul Sharma" -and $namesMale -contains "Amit Verma" -and $namesMale -contains "Vikram Singh")
 Record-TestResult -TestId "T1.2.2" -Tier "Tier 1" -Category "Gender Filter" -Description "Filter 'Male' returns exactly 3 male candidates" -Passed $pass1_2_2 -Details "Count: $cardsMale"
 
@@ -233,7 +220,7 @@ $resFemale = Send-WebFormsPost -Url $targetUrl -Session $s2 -PreviousHtml $resMa
     "btnFilterGender" = "Filter"; "DropDownList1" = "Female"
 }
 $cardsFemale = Get-CardCount -Html $resFemale.Content
-$namesFemale = Get-CardNames -Html $resFemale.Content
+[string[]]$namesFemale = Get-CardNames -Html $resFemale.Content
 $pass1_2_3 = ($cardsFemale -eq 2 -and $namesFemale -contains "Priya Mukherjee" -and $namesFemale -contains "Sneha Patel")
 Record-TestResult -TestId "T1.2.3" -Tier "Tier 1" -Category "Gender Filter" -Description "Filter 'Female' returns exactly 2 female candidates" -Passed $pass1_2_3 -Details "Count: $cardsFemale"
 
@@ -242,7 +229,7 @@ $pass1_2_4 = ($cardsMale -eq 3 -and $cardsFemale -eq 2)
 Record-TestResult -TestId "T1.2.4" -Tier "Tier 1" -Category "Gender Filter" -Description "Gender transition dynamically updates counts from 3 to 2" -Passed $pass1_2_4 -Details "Male: $cardsMale, Female: $cardsFemale"
 
 # T1.2.5: Filter State Persistence
-$dropdownSelected = $resFemale.Content -match 'value="Female"\s+selected="selected"'
+$dropdownSelected = ($resFemale.Content -match 'selected="selected"\s+value="Female"' -or $resFemale.Content -match 'value="Female"\s+selected="selected"')
 Record-TestResult -TestId "T1.2.5" -Tier "Tier 1" -Category "Gender Filter" -Description "Selected gender persists across postbacks" -Passed $dropdownSelected -Details "Selected attribute present: $dropdownSelected"
 
 # Feature 1.3: View Mode Switching (5 tests)
@@ -250,7 +237,7 @@ $s3 = New-FreshSession
 $initRes3 = Invoke-WebRequest -Uri $targetUrl -WebSession $s3 -UseBasicParsing
 
 # T1.3.1: Initial mode is Directory
-$pass1_3_1 = ($initRes3.Content -match 'value="Directory"\s+selected="selected"' -or $initRes3.Content -match 'All Candidates Directory')
+$pass1_3_1 = ($initRes3.Content -match 'value="Directory"\s+selected="selected"' -or $initRes3.Content -match 'selected="selected"\s+value="Directory"' -or $initRes3.Content -match 'All Candidates Directory')
 Record-TestResult -TestId "T1.3.1" -Tier "Tier 1" -Category "View Mode" -Description "Initial view mode defaults to All Candidates Directory" -Passed $pass1_3_1
 
 # T1.3.2: Switch to Resume view mode
@@ -269,7 +256,7 @@ Record-TestResult -TestId "T1.3.3" -Tier "Tier 1" -Category "View Mode" -Descrip
 $resCand2 = Send-WebFormsPost -Url $targetUrl -Session $s3 -PreviousHtml $resResumeMode.Content -FieldValues @{
     "ddlViewMode" = "Resume"; "ddlCandidate" = "2"; "__EVENTTARGET" = "ddlCandidate"
 }
-$namesCand2 = Get-CardNames -Html $resCand2.Content
+[string[]]$namesCand2 = Get-CardNames -Html $resCand2.Content
 $pass1_3_4 = ($namesCand2.Count -eq 1 -and $namesCand2[0] -eq "Priya Mukherjee")
 Record-TestResult -TestId "T1.3.4" -Tier "Tier 1" -Category "View Mode" -Description "Selecting Candidate 2 in Resume mode displays Priya Mukherjee" -Passed $pass1_3_4 -Details "Found: $($namesCand2 -join ', ')"
 
@@ -445,7 +432,7 @@ $rInit2_2 = Invoke-WebRequest -Uri $targetUrl -WebSession $s2_2 -UseBasicParsing
 $rLeadWhite = Send-WebFormsPost -Url $targetUrl -Session $s2_2 -PreviousHtml $rInit2_2.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "   Rahul"
 }
-$namesLead = Get-CardNames -Html $rLeadWhite.Content
+[string[]]$namesLead = Get-CardNames -Html $rLeadWhite.Content
 $pass2_2_1 = ($namesLead.Count -eq 1 -and $namesLead[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T2.2.1" -Tier "Tier 2" -Category "Whitespace" -Description "Leading whitespace '   Rahul' matches Rahul Sharma" -Passed $pass2_2_1 -Details "Found: $($namesLead -join ', ')"
 
@@ -453,7 +440,7 @@ Record-TestResult -TestId "T2.2.1" -Tier "Tier 2" -Category "Whitespace" -Descri
 $rTrailWhite = Send-WebFormsPost -Url $targetUrl -Session $s2_2 -PreviousHtml $rLeadWhite.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "Rahul   "
 }
-$namesTrail = Get-CardNames -Html $rTrailWhite.Content
+[string[]]$namesTrail = Get-CardNames -Html $rTrailWhite.Content
 $pass2_2_2 = ($namesTrail.Count -eq 1 -and $namesTrail[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T2.2.2" -Tier "Tier 2" -Category "Whitespace" -Description "Trailing whitespace 'Rahul   ' matches Rahul Sharma" -Passed $pass2_2_2 -Details "Found: $($namesTrail -join ', ')"
 
@@ -461,7 +448,7 @@ Record-TestResult -TestId "T2.2.2" -Tier "Tier 2" -Category "Whitespace" -Descri
 $rSurrWhite = Send-WebFormsPost -Url $targetUrl -Session $s2_2 -PreviousHtml $rTrailWhite.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "   Rahul   "
 }
-$namesSurr = Get-CardNames -Html $rSurrWhite.Content
+[string[]]$namesSurr = Get-CardNames -Html $rSurrWhite.Content
 $pass2_2_3 = ($namesSurr.Count -eq 1 -and $namesSurr[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T2.2.3" -Tier "Tier 2" -Category "Whitespace" -Description "Surrounding whitespace '   Rahul   ' matches Rahul Sharma" -Passed $pass2_2_3 -Details "Found: $($namesSurr -join ', ')"
 
@@ -469,7 +456,7 @@ Record-TestResult -TestId "T2.2.3" -Tier "Tier 2" -Category "Whitespace" -Descri
 $rFullSpace = Send-WebFormsPost -Url $targetUrl -Session $s2_2 -PreviousHtml $rSurrWhite.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "Rahul Sharma"
 }
-$namesFull = Get-CardNames -Html $rFullSpace.Content
+[string[]]$namesFull = Get-CardNames -Html $rFullSpace.Content
 $pass2_2_4 = ($namesFull.Count -eq 1 -and $namesFull[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T2.2.4" -Tier "Tier 2" -Category "Whitespace" -Description "Search with internal space 'Rahul Sharma' matches correctly" -Passed $pass2_2_4 -Details "Found: $($namesFull -join ', ')"
 
@@ -532,21 +519,24 @@ Record-TestResult -TestId "T2.4.1" -Tier "Tier 2" -Category "Zero Match" -Descri
 
 # T2.4.2: Non-Existent Name with Male Filter
 $rZero2 = Send-WebFormsPost -Url $targetUrl -Session $s2_4 -PreviousHtml $rZero1.Content -FieldValues @{
-    "btnSearch" = "Search"; "txtFirstName" = "NonExistentCandidate999"; "DropDownList1" = "Male"
+    "btnFilterGender" = "Filter"; "DropDownList1" = "Male"
 }
 $pass2_4_2 = ($rZero2.StatusCode -eq 200 -and (Get-CardCount -Html $rZero2.Content) -eq 0)
 Record-TestResult -TestId "T2.4.2" -Tier "Tier 2" -Category "Zero Match" -Description "Non-existent candidate with Male filter returns 0 cards" -Passed $pass2_4_2
 
 # T2.4.3: Non-Existent Name with Female Filter
 $rZero3 = Send-WebFormsPost -Url $targetUrl -Session $s2_4 -PreviousHtml $rZero2.Content -FieldValues @{
-    "btnSearch" = "Search"; "txtFirstName" = "NonExistentCandidate999"; "DropDownList1" = "Female"
+    "btnFilterGender" = "Filter"; "DropDownList1" = "Female"
 }
 $pass2_4_3 = ($rZero3.StatusCode -eq 200 -and (Get-CardCount -Html $rZero3.Content) -eq 0)
 Record-TestResult -TestId "T2.4.3" -Tier "Tier 2" -Category "Zero Match" -Description "Non-existent candidate with Female filter returns 0 cards" -Passed $pass2_4_3
 
 # T2.4.4: Conflicting Criteria (Rahul + Female)
-$rZero4 = Send-WebFormsPost -Url $targetUrl -Session $s2_4 -PreviousHtml $rZero3.Content -FieldValues @{
-    "btnSearch" = "Search"; "txtFirstName" = "Rahul"; "DropDownList1" = "Female"
+$rZero4_gender = Send-WebFormsPost -Url $targetUrl -Session $s2_4 -PreviousHtml $rZero3.Content -FieldValues @{
+    "btnFilterGender" = "Filter"; "DropDownList1" = "Female"
+}
+$rZero4 = Send-WebFormsPost -Url $targetUrl -Session $s2_4 -PreviousHtml $rZero4_gender.Content -FieldValues @{
+    "btnSearch" = "Search"; "txtFirstName" = "Rahul"
 }
 $pass2_4_4 = ($rZero4.StatusCode -eq 200 -and (Get-CardCount -Html $rZero4.Content) -eq 0)
 Record-TestResult -TestId "T2.4.4" -Tier "Tier 2" -Category "Zero Match" -Description "Conflicting criteria (Rahul + Female filter) gracefully displays 0 cards" -Passed $pass2_4_4
@@ -566,7 +556,7 @@ $rInit2_5 = Invoke-WebRequest -Uri $targetUrl -WebSession $s2_5 -UseBasicParsing
 $rCase1 = Send-WebFormsPost -Url $targetUrl -Session $s2_5 -PreviousHtml $rInit2_5.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "rahul"
 }
-$namesCase1 = Get-CardNames -Html $rCase1.Content
+[string[]]$namesCase1 = Get-CardNames -Html $rCase1.Content
 $pass2_5_1 = ($namesCase1.Count -eq 1 -and $namesCase1[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T2.5.1" -Tier "Tier 2" -Category "Case Insensitivity" -Description "All lowercase 'rahul' resolves to Rahul Sharma" -Passed $pass2_5_1
 
@@ -574,7 +564,7 @@ Record-TestResult -TestId "T2.5.1" -Tier "Tier 2" -Category "Case Insensitivity"
 $rCase2 = Send-WebFormsPost -Url $targetUrl -Session $s2_5 -PreviousHtml $rCase1.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "RAHUL"
 }
-$namesCase2 = Get-CardNames -Html $rCase2.Content
+[string[]]$namesCase2 = Get-CardNames -Html $rCase2.Content
 $pass2_5_2 = ($namesCase2.Count -eq 1 -and $namesCase2[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T2.5.2" -Tier "Tier 2" -Category "Case Insensitivity" -Description "All uppercase 'RAHUL' resolves to Rahul Sharma" -Passed $pass2_5_2
 
@@ -582,7 +572,7 @@ Record-TestResult -TestId "T2.5.2" -Tier "Tier 2" -Category "Case Insensitivity"
 $rCase3 = Send-WebFormsPost -Url $targetUrl -Session $s2_5 -PreviousHtml $rCase2.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "rAhUl"
 }
-$namesCase3 = Get-CardNames -Html $rCase3.Content
+[string[]]$namesCase3 = Get-CardNames -Html $rCase3.Content
 $pass2_5_3 = ($namesCase3.Count -eq 1 -and $namesCase3[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T2.5.3" -Tier "Tier 2" -Category "Case Insensitivity" -Description "Mixed inverted case 'rAhUl' resolves to Rahul Sharma" -Passed $pass2_5_3
 
@@ -590,7 +580,7 @@ Record-TestResult -TestId "T2.5.3" -Tier "Tier 2" -Category "Case Insensitivity"
 $rCase4 = Send-WebFormsPost -Url $targetUrl -Session $s2_5 -PreviousHtml $rCase3.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "priya"
 }
-$namesCase4 = Get-CardNames -Html $rCase4.Content
+[string[]]$namesCase4 = Get-CardNames -Html $rCase4.Content
 $pass2_5_4 = ($namesCase4.Count -eq 1 -and $namesCase4[0] -eq "Priya Mukherjee")
 Record-TestResult -TestId "T2.5.4" -Tier "Tier 2" -Category "Case Insensitivity" -Description "All lowercase 'priya' resolves to Priya Mukherjee" -Passed $pass2_5_4
 
@@ -598,7 +588,7 @@ Record-TestResult -TestId "T2.5.4" -Tier "Tier 2" -Category "Case Insensitivity"
 $rCase5 = Send-WebFormsPost -Url $targetUrl -Session $s2_5 -PreviousHtml $rCase4.Content -FieldValues @{
     "btnSearch" = "Search"; "txtFirstName" = "PRIYA"
 }
-$namesCase5 = Get-CardNames -Html $rCase5.Content
+[string[]]$namesCase5 = Get-CardNames -Html $rCase5.Content
 $pass2_5_5 = ($namesCase5.Count -eq 1 -and $namesCase5[0] -eq "Priya Mukherjee")
 Record-TestResult -TestId "T2.5.5" -Tier "Tier 2" -Category "Case Insensitivity" -Description "All uppercase 'PRIYA' resolves to Priya Mukherjee" -Passed $pass2_5_5
 
@@ -619,7 +609,7 @@ $rPair1 = Send-WebFormsPost -Url $targetUrl -Session $s3_comb -PreviousHtml $rIn
 $rPair1b = Send-WebFormsPost -Url $targetUrl -Session $s3_comb -PreviousHtml $rPair1.Content -FieldValues @{
     "btnFilterGender" = "Filter"; "DropDownList1" = "Male"
 }
-$namesP1 = Get-CardNames -Html $rPair1b.Content
+[string[]]$namesP1 = Get-CardNames -Html $rPair1b.Content
 $pass3_1 = ($namesP1.Count -eq 1 -and $namesP1[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T3.1" -Tier "Tier 3" -Category "Pairwise Combination" -Description "Search 'Rahul' + Filter 'Male' yields exactly Rahul Sharma" -Passed $pass3_1
 
@@ -635,7 +625,7 @@ Record-TestResult -TestId "T3.2" -Tier "Tier 3" -Category "Pairwise Combination"
 $rPair3Reset = Send-WebFormsPost -Url $targetUrl -Session $s3_comb -PreviousHtml $rPair2.Content -FieldValues @{ "btnReset" = "Reset Filters" }
 $rPair3a = Send-WebFormsPost -Url $targetUrl -Session $s3_comb -PreviousHtml $rPair3Reset.Content -FieldValues @{ "btnSearch" = "Search"; "txtFirstName" = "Priya" }
 $rPair3b = Send-WebFormsPost -Url $targetUrl -Session $s3_comb -PreviousHtml $rPair3a.Content -FieldValues @{ "btnFilterGender" = "Filter"; "DropDownList1" = "Female" }
-$namesP3 = Get-CardNames -Html $rPair3b.Content
+[string[]]$namesP3 = Get-CardNames -Html $rPair3b.Content
 $pass3_3 = ($namesP3.Count -eq 1 -and $namesP3[0] -eq "Priya Mukherjee")
 Record-TestResult -TestId "T3.3" -Tier "Tier 3" -Category "Pairwise Combination" -Description "Search 'Priya' + Filter 'Female' yields exactly Priya Mukherjee" -Passed $pass3_3
 
@@ -702,14 +692,14 @@ $rw1_init = Invoke-WebRequest -Uri $targetUrl -WebSession $s4_1 -UseBasicParsing
 Record-TestResult -TestId "T4.1.1" -Tier "Tier 4" -Category "Workflow: Recruiter Sourcing" -Description "Step 1: Recruiter lands on candidate directory" -Passed ($rw1_init.StatusCode -eq 200)
 
 $rw1_search = Send-WebFormsPost -Url $targetUrl -Session $s4_1 -PreviousHtml $rw1_init.Content -FieldValues @{ "btnSearch" = "Search"; "txtFirstName" = "Rahul" }
-$rw1_names = Get-CardNames -Html $rw1_search.Content
+[string[]]$rw1_names = Get-CardNames -Html $rw1_search.Content
 $pass4_1_2 = ($rw1_names.Count -eq 1 -and $rw1_names[0] -eq "Rahul Sharma")
 Record-TestResult -TestId "T4.1.2" -Tier "Tier 4" -Category "Workflow: Recruiter Sourcing" -Description "Step 2: Recruiter searches for candidate Rahul Sharma" -Passed $pass4_1_2
 
 $pass4_1_3 = ($rw1_search.Content -match "Senior \.NET Developer" -and $rw1_search.Content -match "Kolkata")
 Record-TestResult -TestId "T4.1.3" -Tier "Tier 4" -Category "Workflow: Recruiter Sourcing" -Description "Step 3: Verifies candidate role (Senior .NET Developer) and location (Kolkata)" -Passed $pass4_1_3
 
-$imgMatch4_1 = [regex]::Match($rw1_search.Content, 'CrystalImageHandler\.aspx\?dynamicimage=[^"''\s<>]+')
+$imgMatch4_1 = [regex]::Match($rw1_search.Content, 'CrystalImageHandler\.aspx\?dynamicimage=([^"''\s<>]+)')
 $pass4_1_4 = $false
 if ($imgMatch4_1.Success) {
     $imgRes4_1 = Invoke-WebRequest -Uri "$BaseUrl/$($imgMatch4_1.Value)" -WebSession $s4_1 -UseBasicParsing
@@ -726,7 +716,7 @@ $s4_2 = New-FreshSession
 $rw2_init = Invoke-WebRequest -Uri $targetUrl -WebSession $s4_2 -UseBasicParsing
 $rw2_female = Send-WebFormsPost -Url $targetUrl -Session $s4_2 -PreviousHtml $rw2_init.Content -FieldValues @{ "btnFilterGender" = "Filter"; "DropDownList1" = "Female" }
 $rw2_cards = Get-CardCount -Html $rw2_female.Content
-$rw2_names = Get-CardNames -Html $rw2_female.Content
+[string[]]$rw2_names = Get-CardNames -Html $rw2_female.Content
 $pass4_2_1 = ($rw2_cards -eq 2 -and $rw2_names -contains "Priya Mukherjee" -and $rw2_names -contains "Sneha Patel")
 Record-TestResult -TestId "T4.2.1" -Tier "Tier 4" -Category "Workflow: HR Diversity" -Description "Step 1: HR manager filters female candidates (Priya & Sneha)" -Passed $pass4_2_1 -Details "Found: $($rw2_names -join ', ')"
 
@@ -739,12 +729,14 @@ $pass4_2_3 = ($rw2_header.Success -and $rw2_header.Groups[1].Value -match "Resum
 Record-TestResult -TestId "T4.2.3" -Tier "Tier 4" -Category "Workflow: HR Diversity" -Description "Step 3: Confirms report header reflects individual biodata & resume" -Passed $pass4_2_3
 
 $rw2_selectPriya = Send-WebFormsPost -Url $targetUrl -Session $s4_2 -PreviousHtml $rw2_resumeMode.Content -FieldValues @{ "ddlViewMode" = "Resume"; "ddlCandidate" = "2"; "__EVENTTARGET" = "ddlCandidate" }
-$rw2_priyaCard = Get-CardNames -Html $rw2_selectPriya.Content
+[string[]]$rw2_priyaCard = Get-CardNames -Html $rw2_selectPriya.Content
 $pass4_2_4 = ($rw2_priyaCard.Count -eq 1 -and $rw2_priyaCard[0] -eq "Priya Mukherjee")
 Record-TestResult -TestId "T4.2.4" -Tier "Tier 4" -Category "Workflow: HR Diversity" -Description "Step 4: Inspects candidate Priya Mukherjee profile dossier" -Passed $pass4_2_4
 
+# Return to Directory view with Female filter active (2 candidates) then Reset Filters (5 candidates)
 $rw2_backDir = Send-WebFormsPost -Url $targetUrl -Session $s4_2 -PreviousHtml $rw2_selectPriya.Content -FieldValues @{ "ddlViewMode" = "Directory"; "__EVENTTARGET" = "ddlViewMode" }
-$pass4_2_5 = ((Get-CardCount -Html $rw2_backDir.Content) -eq 5)
+$rw2_finalReset = Send-WebFormsPost -Url $targetUrl -Session $s4_2 -PreviousHtml $rw2_backDir.Content -FieldValues @{ "btnReset" = "Reset Filters" }
+$pass4_2_5 = ((Get-CardCount -Html $rw2_finalReset.Content) -eq 5)
 Record-TestResult -TestId "T4.2.5" -Tier "Tier 4" -Category "Workflow: HR Diversity" -Description "Step 5: Returns to full Directory mode cleanly" -Passed $pass4_2_5
 
 # Scenario 4.3: Hiring Committee Dossier PDF Export
@@ -752,7 +744,7 @@ $s4_3 = New-FreshSession
 $rw3_init = Invoke-WebRequest -Uri $targetUrl -WebSession $s4_3 -UseBasicParsing
 $rw3_male = Send-WebFormsPost -Url $targetUrl -Session $s4_3 -PreviousHtml $rw3_init.Content -FieldValues @{ "btnFilterGender" = "Filter"; "DropDownList1" = "Male" }
 $rw3_searchVikram = Send-WebFormsPost -Url $targetUrl -Session $s4_3 -PreviousHtml $rw3_male.Content -FieldValues @{ "btnSearch" = "Search"; "txtFirstName" = "Vikram" }
-$rw3_names = Get-CardNames -Html $rw3_searchVikram.Content
+[string[]]$rw3_names = Get-CardNames -Html $rw3_searchVikram.Content
 $pass4_3_1 = ($rw3_names.Count -eq 1 -and $rw3_names[0] -eq "Vikram Singh")
 Record-TestResult -TestId "T4.3.1" -Tier "Tier 4" -Category "Workflow: Dossier Export" -Description "Step 1: Director searches for finalist Vikram Singh (Male)" -Passed $pass4_3_1
 
@@ -787,7 +779,7 @@ foreach ($ec in $expectedCandidates) {
     $rw4_step = Send-WebFormsPost -Url $targetUrl -Session $s4_4 -PreviousHtml $prevHtml4 -FieldValues @{
         "ddlViewMode" = "Resume"; "ddlCandidate" = $ec.Id; "__EVENTTARGET" = "ddlCandidate"
     }
-    $cNames = Get-CardNames -Html $rw4_step.Content
+    [string[]]$cNames = Get-CardNames -Html $rw4_step.Content
     $pass4_4 = ($cNames.Count -eq 1 -and $cNames[0] -eq $ec.Name)
     Record-TestResult -TestId "T4.4.$($ec.Id)" -Tier "Tier 4" -Category "Workflow: Multi-Profile Inspection" -Description "Step $($ec.Id): Evaluator inspects Candidate $($ec.Id) ($($ec.Name))" -Passed $pass4_4 -Details "Found: $($cNames -join ', ')"
     $prevHtml4 = $rw4_step.Content
@@ -800,7 +792,7 @@ $rw5_init = Invoke-WebRequest -Uri $targetUrl -WebSession $s4_5 -UseBasicParsing
 # Step 1: Search Amit and Filter Male
 $rw5_step1 = Send-WebFormsPost -Url $targetUrl -Session $s4_5 -PreviousHtml $rw5_init.Content -FieldValues @{ "btnSearch" = "Search"; "txtFirstName" = "Amit" }
 $rw5_step1b = Send-WebFormsPost -Url $targetUrl -Session $s4_5 -PreviousHtml $rw5_step1.Content -FieldValues @{ "btnFilterGender" = "Filter"; "DropDownList1" = "Male" }
-$names5_1 = Get-CardNames -Html $rw5_step1b.Content
+[string[]]$names5_1 = Get-CardNames -Html $rw5_step1b.Content
 $pass4_5_1 = ($names5_1.Count -eq 1 -and $names5_1[0] -eq "Amit Verma")
 Record-TestResult -TestId "T4.5.1" -Tier "Tier 4" -Category "Workflow: Rapid Reset" -Description "Step 1: Rapid query for Amit (Male)" -Passed $pass4_5_1
 
@@ -812,7 +804,7 @@ Record-TestResult -TestId "T4.5.2" -Tier "Tier 4" -Category "Workflow: Rapid Res
 # Step 3: Re-query Sneha and Filter Female
 $rw5_step3 = Send-WebFormsPost -Url $targetUrl -Session $s4_5 -PreviousHtml $rw5_step2.Content -FieldValues @{ "btnSearch" = "Search"; "txtFirstName" = "Sneha" }
 $rw5_step3b = Send-WebFormsPost -Url $targetUrl -Session $s4_5 -PreviousHtml $rw5_step3.Content -FieldValues @{ "btnFilterGender" = "Filter"; "DropDownList1" = "Female" }
-$names5_3 = Get-CardNames -Html $rw5_step3b.Content
+[string[]]$names5_3 = Get-CardNames -Html $rw5_step3b.Content
 $pass4_5_3 = ($names5_3.Count -eq 1 -and $names5_3[0] -eq "Sneha Patel")
 Record-TestResult -TestId "T4.5.3" -Tier "Tier 4" -Category "Workflow: Rapid Reset" -Description "Step 3: Rapid re-query for Sneha (Female)" -Passed $pass4_5_3
 

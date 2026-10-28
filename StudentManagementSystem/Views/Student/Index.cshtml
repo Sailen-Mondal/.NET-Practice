@@ -1,0 +1,119 @@
+@model IEnumerable<StudentManagementSystem.Models.Student>
+
+@{
+    ViewBag.Title = "Student Records Directory";
+}
+
+<!-- Apple Bento Grid Metrics for Students -->
+<section class="bento-grid" aria-label="Student Directory Summary">
+    <div class="bento-box">
+        <div class="bento-label">Total Students</div>
+        <div class="bento-value">4</div>
+        <div class="bento-subtitle">Active enrolled undergraduate cohort</div>
+    </div>
+    <div class="bento-box">
+        <div class="bento-label">Academic Departments</div>
+        <div class="bento-value" style="color: var(--ap-accent);">3</div>
+        <div class="bento-subtitle">CSE, Information Tech &amp; ECE</div>
+    </div>
+    <div class="bento-box">
+        <div class="bento-label">Capstone Project Leads</div>
+        <div class="bento-value" style="color: var(--ap-status-completed-text);">4</div>
+        <div class="bento-subtitle">100% of students lead an active project</div>
+    </div>
+    <div class="bento-box">
+        <div class="bento-label">Reference Implementation</div>
+        <div class="bento-value" style="font-size: 1.35rem; margin-top: 0.35rem;">PDF Slide 4&ndash;6</div>
+        <div class="bento-subtitle">Model-View-Controller Demo</div>
+    </div>
+</section>
+
+<!-- Notion-Style Modular Database Card -->
+<section class="notion-database-card">
+    <div class="notion-toolbar">
+        <div>
+            <h1 style="font-size: 1.35rem; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Student Directory</h1>
+            <p style="font-size: 0.8rem; color: var(--ap-text-tertiary); margin: 0.2rem 0 0 0;">
+                Managed via StudentBusinessLayer &middot; Strongly-typed Razor views
+            </p>
+        </div>
+
+        <div>
+            <a href="@Url.Action("Details", "Student", new { id = 2 })" class="btn-apple-primary" style="font-size: 0.825rem;">Open Student 2 (James) Profile &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Student Table -->
+    <div class="notion-table-container">
+        <table class="notion-table" aria-label="Student Directory List">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 70px;">ID</th>
+                    <th scope="col" style="min-width: 200px;">Student Name</th>
+                    <th scope="col" style="width: 100px;">Gender</th>
+                    <th scope="col" style="width: 120px;">Branch</th>
+                    <th scope="col" style="width: 90px;">Section</th>
+                    <th scope="col" style="min-width: 220px;">Assigned Capstone</th>
+                    <th scope="col" class="actions-col" style="width: 150px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    string initials = "ST";
+                    if (!string.IsNullOrEmpty(item.Name))
+                    {
+                        var parts = item.Name.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length == 1) { initials = parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper(); }
+                        else if (parts.Length > 1) { initials = (parts[0][0].ToString() + parts[parts.Length - 1][0].ToString()).ToUpper(); }
+                    }
+
+                    <tr>
+                        <td style="font-family: var(--ap-font-mono); font-size: 0.825rem; color: var(--ap-text-tertiary);">
+                            #@item.StudentID
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--ap-subtle-bg); border: 1px solid var(--ap-border); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--ap-text-primary);">
+                                    @initials
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--ap-text-primary);">
+                                        @Html.ActionLink(item.Name, "Details", "Student", new { id = item.StudentID }, new { style = "color: inherit; text-decoration: none;" })
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--ap-text-tertiary);">
+                                        @(item.Name.ToLower().Replace(" ", "."))@@university.edu
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@item.Gender</td>
+                        <td><span class="ap-pill ap-pill-category">@item.Branch</span></td>
+                        <td><span class="ap-pill ap-pill-neutral">Sec @item.Section</span></td>
+                        <td>
+                            <span style="font-size: 0.825rem; font-weight: 500; color: var(--ap-text-secondary);">
+                                @if (item.StudentID == 1) { <span>Smart Campus Navigation (#1)</span> }
+                                else if (item.StudentID == 2) { <span>Autonomous Agro-Drone Telemetry (#2)</span> }
+                                else if (item.StudentID == 3) { <span>Library Resource Inventory Grid (#3)</span> }
+                                else { <span>High-Throughput Exam Portal (#4)</span> }
+                            </span>
+                        </td>
+                        <td class="actions-col">
+                            @Html.ActionLink("View Profile", "Details", "Student", new { id = item.StudentID }, new { @class = "btn-apple-secondary", style = "font-size: 0.775rem; padding: 0.3rem 0.7rem;" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Notion-Style Educational Callout -->
+<div class="apple-callout" style="margin-top: 0;">
+    <div class="apple-callout-title">
+        ASP.NET MVC Request-Response Demonstration
+    </div>
+    <p class="apple-callout-text">
+        Clicking <strong>View Profile</strong> or requesting <code>/student/details/2</code> dispatches the request to <code>StudentController.Details(int? id)</code>. The controller invokes <code>StudentBusinessLayer.GetById(2)</code> to query the model, then returns the strongly-typed view <code>Details.cshtml</code> with zero leaky abstraction.
+    </p>
+</div>

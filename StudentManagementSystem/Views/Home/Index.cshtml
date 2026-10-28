@@ -1,0 +1,47 @@
+@{
+    ViewBag.Title = "Student Management System";
+}
+
+<main>
+    <section class="sms-card" style="margin-top: 1rem; margin-bottom: 2rem;">
+        <span class="sms-pill sms-pill-blue" style="margin-bottom: 0.75rem;">ASP.NET MVC 5 Architecture</span>
+        <h1 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 0.75rem;">Student Management System</h1>
+        <p style="font-size: 1.1rem; color: var(--sms-text-secondary); max-width: 680px; margin-bottom: 1.5rem;">
+            Demonstrating separation of concerns across Model, View, and Controller layers with strongly-typed Razor rendering and clean URL routing.
+        </p>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            @Html.ActionLink("View Students Directory", "Index", "Student", null, new { @class = "btn-notion-primary text-decoration-none" })
+            @Html.ActionLink("View Student 2 (James)", "Details", "Student", new { id = 2 }, new { @class = "btn-notion-outline text-decoration-none" })
+        </div>
+    </section>
+
+    <div class="row g-4">
+        <section class="col-md-4">
+            <div class="sms-card h-100">
+                <span class="sms-pill" style="margin-bottom: 0.5rem;">Layer 1</span>
+                <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Model Layer</h3>
+                <p style="font-size: 0.9rem; color: var(--sms-text-secondary);">
+                    Contains the <code>Student</code> entity domain state and <code>StudentBusinessLayer</code> data retrieval logic, separated cleanly from presentation.
+                </p>
+            </div>
+        </section>
+        <section class="col-md-4">
+            <div class="sms-card h-100">
+                <span class="sms-pill" style="margin-bottom: 0.5rem;">Layer 2</span>
+                <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Controller Layer</h3>
+                <p style="font-size: 0.9rem; color: var(--sms-text-secondary);">
+                    Receives incoming HTTP requests through <code>RouteConfig</code>, invokes business layer methods, and supplies the model to the target view.
+                </p>
+            </div>
+        </section>
+        <section class="col-md-4">
+            <div class="sms-card h-100">
+                <span class="sms-pill" style="margin-bottom: 0.5rem;">Layer 3</span>
+                <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">View Layer</h3>
+                <p style="font-size: 0.9rem; color: var(--sms-text-secondary);">
+                    Generates clean semantic HTML using Razor syntax (<code>.cshtml</code>) without ViewState overhead, featuring an understated Notion-like aesthetic.
+                </p>
+            </div>
+        </section>
+    </div>
+</main>

@@ -1,0 +1,146 @@
+@model StudentManagementSystem.Models.ProjectIndexViewModel
+
+@{
+    ViewBag.Title = "Project Management Workspace";
+}
+
+<!-- Apple Bento Grid Metrics -->
+<section class="bento-grid" aria-label="Project Key Performance Indicators">
+    <div class="bento-box">
+        <div class="bento-label">Total Projects</div>
+        <div class="bento-value">@Model.Metrics.TotalProjects</div>
+        <div class="bento-subtitle">Active across all departments</div>
+    </div>
+    <div class="bento-box">
+        <div class="bento-label">In Progress</div>
+        <div class="bento-value" style="color: var(--ap-status-progress-text);">@Model.Metrics.InProgressCount</div>
+        <div class="bento-subtitle">Currently in execution</div>
+    </div>
+    <div class="bento-box">
+        <div class="bento-label">Completed</div>
+        <div class="bento-value" style="color: var(--ap-status-completed-text);">@Model.Metrics.CompletedCount</div>
+        <div class="bento-subtitle">Successfully shipped</div>
+    </div>
+    <div class="bento-box">
+        <div class="bento-label">Total Capital Allocated</div>
+        <div class="bento-value">INR @Model.Metrics.TotalBudget.ToString("N0")</div>
+        <div class="bento-subtitle">Avg: INR @Model.Metrics.AverageBudget.ToString("N0") per project</div>
+    </div>
+</section>
+
+<!-- Notion-Style Modular Database Card -->
+<section class="notion-database-card">
+    <div class="notion-toolbar">
+        <div>
+            <h1 style="font-size: 1.35rem; font-weight: 700; margin: 0; letter-spacing: -0.02em;">Projects Database</h1>
+            <p style="font-size: 0.8rem; color: var(--ap-text-tertiary); margin: 0.2rem 0 0 0;">
+                Source: [ProjectManagementDB].[dbo].[Projects] via ADO.NET
+            </p>
+        </div>
+
+        <!-- Filter Controls & Action Button -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            @using (Html.BeginForm("Index", "Project", FormMethod.Get, new { @class = "d-flex align-items-center gap-2 flex-wrap" }))
+            {
+                <div style="position: relative;">
+                    <label for="search" class="visually-hidden">Search projects</label>
+                    <input type="text" id="search" name="search" value="@Model.SearchTerm" placeholder="Filter projects or leads..." 
+                           aria-label="Filter projects or leads"
+                           class="ap-form-control" style="width: 210px; padding: 0.35rem 0.75rem; font-size: 0.85rem;" />
+                </div>
+
+                <label for="status" class="visually-hidden">Filter by status</label>
+                <select id="status" name="status" aria-label="Filter by project status" class="ap-form-control" style="width: 135px; padding: 0.35rem 0.65rem; font-size: 0.85rem;">
+                    <option value="All" @(Model.SelectedStatus == "All" ? "selected" : "")>All Statuses</option>
+                    <option value="Planning" @(Model.SelectedStatus == "Planning" ? "selected" : "")>Planning</option>
+                    <option value="In Progress" @(Model.SelectedStatus == "In Progress" ? "selected" : "")>In Progress</option>
+                    <option value="Completed" @(Model.SelectedStatus == "Completed" ? "selected" : "")>Completed</option>
+                    <option value="On Hold" @(Model.SelectedStatus == "On Hold" ? "selected" : "")>On Hold</option>
+                </select>
+
+                <button type="submit" class="btn-apple-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;">Apply</button>
+                if (!string.IsNullOrEmpty(Model.SearchTerm) || (Model.SelectedStatus != "All" && !string.IsNullOrEmpty(Model.SelectedStatus)))
+                {
+                    @Html.ActionLink("Reset", "Index", "Project", null, new { @class = "btn-apple-secondary", style = "padding: 0.35rem 0.75rem; font-size: 0.85rem;" })
+                }
+            }
+
+            @Html.ActionLink("+ New Project", "Create", "Project", null, new { @class = "btn-apple-primary", style = "padding: 0.35rem 0.85rem; font-size: 0.85rem;" })
+        </div>
+    </div>
+
+    <!-- Responsive Table with Sticky Actions -->
+    <div class="notion-table-container">
+        <table class="notion-table" aria-label="Projects Database View">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 50px;">ID</th>
+                    <th scope="col" style="min-width: 200px;">Project Title</th>
+                    <th scope="col" style="width: 110px;">Category</th>
+                    <th scope="col" style="width: 120px;">Lead Student</th>
+                    <th scope="col" style="width: 105px;">Status</th>
+                    <th scope="col" style="width: 90px;">Priority</th>
+                    <th scope="col" style="width: 125px; text-align: right;">Budget</th>
+                    <th scope="col" style="width: 125px;">Timeline</th>
+                    <th scope="col" class="actions-col" style="width: 170px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Projects == null || Model.Projects.Count == 0)
+                {
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 3rem 1rem; color: var(--ap-text-tertiary);">
+                            <div style="font-size: 1rem; font-weight: 500; color: var(--ap-text-secondary);">No projects matched the search criteria.</div>
+                            <div style="font-size: 0.85rem; margin-top: 0.25rem;">Try modifying your query or reset filters.</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model.Projects)
+                    {
+                        string statusClass = "ap-pill-neutral";
+                        if (item.Status == "In Progress") { statusClass = "ap-pill-progress"; }
+                        else if (item.Status == "Completed") { statusClass = "ap-pill-completed"; }
+                        else if (item.Status == "Planning") { statusClass = "ap-pill-planning"; }
+
+                        string priorityClass = "ap-pill-neutral";
+                        if (item.Priority == "Critical") { priorityClass = "ap-pill-critical"; }
+
+                        <tr>
+                            <td style="font-family: var(--ap-font-mono); font-size: 0.8rem; color: var(--ap-text-tertiary);">#@item.ProjectID</td>
+                            <td>
+                                <div style="font-weight: 600; color: var(--ap-text-primary);">
+                                    @Html.ActionLink(item.Title, "Details", new { id = item.ProjectID }, new { style = "color: inherit; text-decoration: none;" })
+                                </div>
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <div style="font-size: 0.775rem; color: var(--ap-text-tertiary); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;">
+                                        @item.Description
+                                    </div>
+                                }
+                            </td>
+                            <td><span class="ap-pill ap-pill-category">@item.Category</span></td>
+                            <td style="font-weight: 500;">@item.LeadStudent</td>
+                            <td><span class="ap-pill @statusClass">@item.Status</span></td>
+                            <td><span class="ap-pill @priorityClass">@item.Priority</span></td>
+                            <td style="text-align: right; font-family: var(--ap-font-mono); font-weight: 600;">
+                                INR @item.Budget.ToString("N2")
+                            </td>
+                            <td style="font-size: 0.775rem; color: var(--ap-text-secondary); white-space: nowrap;">
+                                @item.StartDate.ToString("MMM yyyy") &rarr; @(item.EndDate.HasValue ? item.EndDate.Value.ToString("MMM yyyy") : "Ongoing")
+                            </td>
+                            <td class="actions-col">
+                                <div class="action-btn-group">
+                                    @Html.ActionLink("Details", "Details", new { id = item.ProjectID }, new { @class = "btn-apple-secondary", title = "View Project Details" })
+                                    @Html.ActionLink("Edit", "Edit", new { id = item.ProjectID }, new { @class = "btn-apple-secondary", title = "Edit Project Record" })
+                                    @Html.ActionLink("Delete", "Delete", new { id = item.ProjectID }, new { @class = "btn-apple-danger", title = "Delete Project Record" })
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

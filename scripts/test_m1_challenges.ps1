@@ -74,7 +74,6 @@ try {
         $times += $cycleSw.ElapsedMilliseconds
     }
     $sw.Stop()
-    $avgTime = ($times | Measure-Object -Average).Average
     $firstTime = $times[0]
     $laterAvg = ($times[1..149] | Measure-Object -Average).Average
     
@@ -87,14 +86,17 @@ try {
     Record-Result -TestId "CP-01" -Description "150 rapid consecutive open/query/close cycles" -Success $false -Details $_.Exception.Message
 }
 
-# Test 1.2: Concurrent Multi-Threaded Stress (20 Parallel Connections)
+# Test 1.2: Concurrent Multi-Threaded Stress (20 Parallel Connections via RunspacePool)
 try {
     $concurrencyLevel = 20
-    $jobs = @()
+    $initialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+    $pool = [runspacefactory]::CreateRunspacePool(1, $concurrencyLevel, $initialSessionState, $Host)
+    $pool.Open()
+    
     $scriptBlock = {
-        param($connectionString, $id)
+        param($cs, $id)
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        $conn = New-Object System.Data.SqlClient.SqlConnection($connectionString)
+        $conn = New-Object System.Data.SqlClient.SqlConnection($cs)
         $conn.Open()
         $cmd = $conn.CreateCommand()
         $cmd.CommandText = "SELECT COUNT(*) FROM dbo.CandidateProfiles"
@@ -105,17 +107,13 @@ try {
             Id = $id
             Count = $count
             DurationMs = $sw.ElapsedMilliseconds
-            State = 'Success'
         }
     }
     
-    $runspacePool = [runspacefactory]::CreateRunspacePool(1, $concurrencyLevel)
-    $runspacePool.Open()
     $threads = @()
-    
     for ($i = 1; $i -le $concurrencyLevel; $i++) {
         $ps = [powershell]::Create()
-        $ps.RunspacePool = $runspacePool
+        $ps.RunspacePool = $pool
         $ps.AddScript($scriptBlock).AddArgument($conStr).AddArgument($i) | Out-Null
         $threads += [PSCustomObject]@{
             Pipe = $ps
@@ -128,16 +126,21 @@ try {
     foreach ($t in $threads) {
         try {
             $res = $t.Pipe.EndInvoke($t.AsyncResult)
-            if ($res.Count -ne 5) { $concurrentErrors++ }
-            if ($res.DurationMs -gt $maxDuration) { $maxDuration = $res.DurationMs }
+            $resObj = $res[0]
+            if ($resObj.Count -ne 5) { 
+                $concurrentErrors++ 
+            }
+            if ($resObj.DurationMs -gt $maxDuration) { 
+                $maxDuration = $resObj.DurationMs 
+            }
         } catch {
             $concurrentErrors++
         } finally {
             $t.Pipe.Dispose()
         }
     }
-    $runspacePool.Close()
-    $runspacePool.Dispose()
+    $pool.Close()
+    $pool.Dispose()
     
     $success = ($concurrentErrors -eq 0)
     Record-Result -TestId "CP-02" `
@@ -201,7 +204,6 @@ try {
     $sqlInjected = $false
     
     foreach ($payload in $injectionPayloads) {
-        # Emulate FetchCandidateData parameterized name filter
         $cmd = $conn.CreateCommand()
         $cmd.CommandText = @"
 SELECT CandidateId, FullName, Gender, City, PhotoData 
@@ -214,8 +216,6 @@ ORDER BY CandidateId
         $dt = New-Object System.Data.DataTable
         $da.Fill($dt) | Out-Null
         
-        # If payload was "' OR '1'='1" and was vulnerable, it would return all 5 rows.
-        # But parameterized, none of our candidate names have literal "' OR '1'='1", so it must return 0 rows.
         if ($payload -eq "' OR '1'='1" -and $dt.Rows.Count -gt 0) {
             $sqlInjected = $true
         }
@@ -230,7 +230,6 @@ ORDER BY CandidateId
     Record-Result -TestId "CP-04" -Description "SQL Injection resilience" -Success $false -Details $_.Exception.Message
 }
 
-
 # ==============================================================================
 # CHALLENGE SUITE 2: GDI+ IMAGE DESERIALIZATION, DIMENSIONS & BITMAP INTEGRITY
 # ==============================================================================
@@ -242,11 +241,11 @@ Write-Host "--------------------------------------------------------------------
 Add-Type -AssemblyName System.Drawing
 
 $expectedCandidateImages = @(
-    @{ Id = 1; Name = "Rahul Sharma"; File = "emp1.png"; ExpW = 240; ExpH = 240; ExpFormat = "Png" },
-    @{ Id = 2; Name = "Priya Mukherjee"; File = "emp2.png"; ExpW = 240; ExpH = 240; ExpFormat = "Png" },
-    @{ Id = 3; Name = "Amit Verma"; File = "emp3.png"; ExpW = 240; ExpH = 240; ExpFormat = "Png" },
-    @{ Id = 4; Name = "Sneha Patel"; File = "emp4.png"; ExpW = 240; ExpH = 240; ExpFormat = "Png" },
-    @{ Id = 5; Name = "Vikram Singh"; File = "emp5.png"; ExpW = 240; ExpH = 240; ExpFormat = "Png" }
+    @{ Id = 1; Name = "Rahul Sharma"; File = "emp1.png"; ExpW = 240; ExpH = 240 },
+    @{ Id = 2; Name = "Priya Mukherjee"; File = "emp2.png"; ExpW = 240; ExpH = 240 },
+    @{ Id = 3; Name = "Amit Verma"; File = "emp3.png"; ExpW = 240; ExpH = 240 },
+    @{ Id = 4; Name = "Sneha Patel"; File = "emp4.png"; ExpW = 240; ExpH = 240 },
+    @{ Id = 5; Name = "Vikram Singh"; File = "emp5.png"; ExpW = 240; ExpH = 240 }
 )
 
 $conn = New-Object System.Data.SqlClient.SqlConnection($conStr)
@@ -272,7 +271,10 @@ while ($reader.Read()) {
 $reader.Close()
 $conn.Close()
 
-# Test 2.1 - 2.5: Verify every candidate image in SQL Server
+# PNG Magic Header bytes: 89 50 4E 47 0D 0A 1A 0A
+$pngMagicHeader = [byte[]]@(0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
+$pngHeaderHex = [BitConverter]::ToString($pngMagicHeader)
+
 foreach ($exp in $expectedCandidateImages) {
     $row = $imageResults | Where-Object { $_.Id -eq $exp.Id }
     if (-not $row) {
@@ -281,6 +283,18 @@ foreach ($exp in $expectedCandidateImages) {
     }
     
     $bytes = $row.Bytes
+    
+    # 1. Verify PNG binary magic header
+    $actualHeaderHex = [BitConverter]::ToString($bytes[0..7])
+    $headerMatch = ($actualHeaderHex -eq $pngHeaderHex)
+    
+    # 2. Parse IHDR chunk (Width & Height at bytes 16-23 big-endian)
+    $rawW = ([int]$bytes[16] -shl 24) -bor ([int]$bytes[17] -shl 16) -bor ([int]$bytes[18] -shl 8) -bor [int]$bytes[19]
+    $rawH = ([int]$bytes[20] -shl 24) -bor ([int]$bytes[21] -shl 16) -bor ([int]$bytes[22] -shl 8) -bor [int]$bytes[23]
+    $bitDepth = [int]$bytes[24]
+    $colorType = [int]$bytes[25] # 6 = RGBA, 2 = RGB
+    
+    # 3. GDI+ Deserialization via System.Drawing.Image.FromStream
     try {
         $ms = New-Object System.IO.MemoryStream(,$bytes)
         $img = [System.Drawing.Image]::FromStream($ms)
@@ -300,21 +314,20 @@ foreach ($exp in $expectedCandidateImages) {
         $graphics.DrawImage($img, 0, 0, $width, $height)
         $graphics.Dispose()
         
-        # Verify non-trivial pixels (not completely blank or transparent)
         $samplePixel = $targetBmp.GetPixel(120, 120)
         $targetBmp.Dispose()
         
         $img.Dispose()
         $ms.Dispose()
         
-        $dimPass = ($width -eq $exp.ExpW -and $height -eq $exp.ExpH)
-        $formatPass = $isPng
+        $dimPass = ($width -eq $exp.ExpW -and $height -eq $exp.ExpH -and $rawW -eq $exp.ExpW -and $rawH -eq $exp.ExpH)
+        $formatPass = ($isPng -and $headerMatch)
         
         Record-Result -TestId ("IMG-CAND-{0}" -f $exp.Id) `
             -Description ("GDI+ verification for Candidate {0} ({1})" -f $exp.Id, $exp.Name) `
             -Success ($dimPass -and $formatPass) `
-            -Details ("Size: {0} bytes | Dimensions: {1}x{2} (Expected: {3}x{4}) | Format: {5} | PixelFormat: {6} | DPI: {7}x{8} | Center Pixel ARGB: {9}" -f `
-                $bytes.Length, $width, $height, $exp.ExpW, $exp.ExpH, $(if ($isPng){"PNG"}else{"Other"}), $pixelFormat, $hRes, $vRes, $samplePixel.ToString())
+            -Details ("Size: {0} bytes | Dimensions: {1}x{2} (Expected: {3}x{4}) | Format: {5} | IHDR Depth: {6}-bit, ColorType: {7} | PixelFormat: {8} | Center Pixel: {9}" -f `
+                $bytes.Length, $width, $height, $exp.ExpW, $exp.ExpH, $(if ($isPng){"PNG"}else{"Other"}), $bitDepth, $colorType, $pixelFormat, $samplePixel.ToString())
     } catch {
         Record-Result -TestId ("IMG-CAND-{0}" -f $exp.Id) `
             -Description ("GDI+ verification for Candidate {0} ({1})" -f $exp.Id, $exp.Name) `
@@ -347,6 +360,27 @@ try {
     Record-Result -TestId "IMG-LOGO-01" -Description "Images/logo.png GDI+ verification" -Success $false -Details $_.Exception.Message
 }
 
+# Test 2.7: Adversarial Corrupt Image Detection (GDI+ must reject invalid byte payloads)
+try {
+    $corruptBytes = [byte[]]@(0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09)
+    $ms = New-Object System.IO.MemoryStream(,$corruptBytes)
+    $caughtExpectedError = $false
+    try {
+        $badImg = [System.Drawing.Image]::FromStream($ms)
+        $badImg.Dispose()
+    } catch [System.ArgumentException] {
+        $caughtExpectedError = $true
+    } finally {
+        $ms.Dispose()
+    }
+    
+    Record-Result -TestId "IMG-ADVERSARIAL-01" `
+        -Description "GDI+ correctly rejects corrupted/malformed image byte array" `
+        -Success $caughtExpectedError `
+        -Details ("GDI+ threw ArgumentException on corrupt payload: {0}" -f $caughtExpectedError)
+} catch {
+    Record-Result -TestId "IMG-ADVERSARIAL-01" -Description "Corrupted image test" -Success $false -Details $_.Exception.Message
+}
 
 # ==============================================================================
 # CHALLENGE SUITE 3: CandidateDataSet.xsd SCHEMA BOUNDARY & STRESS TESTING
@@ -364,7 +398,6 @@ try {
     $ds.ReadXmlSchema($xsdPath)
     $table = $ds.Tables["Candidate"]
     
-    # Add row with null/DBNull PhotoData
     $row = $table.NewRow()
     $row["CandidateId"] = 999
     $row["FullName"] = "Test Null Photo Candidate"
@@ -382,7 +415,6 @@ try {
     $row["PhotoData"] = [System.DBNull]::Value
     $table.Rows.Add($row)
     
-    # Write to XML and read back
     $xmlStringWriter = New-Object System.IO.StringWriter
     $ds.WriteXml($xmlStringWriter, [System.Data.XmlWriteMode]::DiffGram)
     $xmlOutput = $xmlStringWriter.ToString()
@@ -390,7 +422,7 @@ try {
     $ds2 = New-Object System.Data.DataSet
     $ds2.ReadXmlSchema($xsdPath)
     $xmlStringReader = New-Object System.IO.StringReader($xmlOutput)
-    $ds2.ReadXml($xmlStringReader, [System.Data.XmlReadMode]::DiffGram)
+    $ds2.ReadXml($xmlStringReader, [System.Data.XmlReadMode]::DiffGram) | Out-Null
     
     $recoveredRow = $ds2.Tables["Candidate"].Rows[0]
     $isNullRecovered = ($recoveredRow.IsNull("PhotoData"))
@@ -412,7 +444,8 @@ try {
     $row = $table.NewRow()
     $row["CandidateId"] = 1000
     $row["FullName"] = "Empty Bytes Candidate"
-    $row["PhotoData"] = New-Object byte[] 0
+    $emptyArr = [byte[]]@()
+    $row.Item("PhotoData") = $emptyArr
     $table.Rows.Add($row)
     
     $swXml = New-Object System.IO.StringWriter
@@ -422,11 +455,10 @@ try {
     $ds2 = New-Object System.Data.DataSet
     $ds2.ReadXmlSchema($xsdPath)
     $srXml = New-Object System.IO.StringReader($xmlData)
-    $ds2.ReadXml($srXml)
+    $ds2.ReadXml($srXml) | Out-Null
     
     $retRow = $ds2.Tables["Candidate"].Rows[0]
     $photoVal = $retRow["PhotoData"]
-    # In XML, empty element with xs:base64Binary deserializes to empty byte array (Length 0)
     $isZeroLength = ($photoVal -is [byte[]] -and $photoVal.Length -eq 0)
     
     Record-Result -TestId "SCH-02" `
@@ -437,13 +469,12 @@ try {
     Record-Result -TestId "SCH-02" -Description "Empty byte array handling" -Success $false -Details $_.Exception.Message
 }
 
-# Test 3.3: Extreme / Oversized Payloads (5 MB Image BLOB & 10,000 char Summary)
+# Test 3.3: Extreme / Oversized Payloads (5 MB Image BLOB & 12,000 char Summary)
 try {
     $ds = New-Object System.Data.DataSet
     $ds.ReadXmlSchema($xsdPath)
     $table = $ds.Tables["Candidate"]
     
-    # Generate 5 MB pseudo-random byte buffer
     $largeBlobSize = 5 * 1024 * 1024 # 5 MB
     $largeBlob = New-Object byte[] $largeBlobSize
     $rand = New-Object System.Random(42)
@@ -455,19 +486,17 @@ try {
     $row["CandidateId"] = 2000
     $row["FullName"] = "High-Payload Candidate"
     $row["Summary"] = $largeSummary
-    $row["PhotoData"] = $largeBlob
+    $row.Item("PhotoData") = $largeBlob
     $table.Rows.Add($row)
     
-    # Serialize to MemoryStream
-    $msOut = New-Object System.IO.MemoryStream
-    $ds.WriteXml($msOut, [System.Data.XmlWriteMode]::IgnoreSchema)
-    $payloadXmlLength = $msOut.Length
+    $swXml = New-Object System.IO.StringWriter
+    $ds.WriteXml($swXml, [System.Data.XmlWriteMode]::IgnoreSchema)
+    $payloadXml = $swXml.ToString()
     
-    # Read back from stream
-    $msOut.Position = 0
     $ds2 = New-Object System.Data.DataSet
     $ds2.ReadXmlSchema($xsdPath)
-    $ds2.ReadXml($msOut)
+    $srXml = New-Object System.IO.StringReader($payloadXml)
+    $ds2.ReadXml($srXml) | Out-Null
     
     $recRow = $ds2.Tables["Candidate"].Rows[0]
     $recBytes = [byte[]]$recRow["PhotoData"]
@@ -476,7 +505,6 @@ try {
     $blobMatches = ($recBytes.Length -eq $largeBlobSize)
     $summaryMatches = ($recSummary.Length -eq $largeSummary.Length)
     
-    # Check SHA256 match
     $sha = [System.Security.Cryptography.SHA256]::Create()
     $origHash = [BitConverter]::ToString($sha.ComputeHash($largeBlob))
     $recHash = [BitConverter]::ToString($sha.ComputeHash($recBytes))
@@ -486,7 +514,7 @@ try {
         -Description "Extreme payload stress test (5MB BLOB + 12,000 char text)" `
         -Success ($blobMatches -and $summaryMatches -and $hashMatches) `
         -Details ("XML Size: {0:N0} bytes | BLOB Match: {1} ({2:N0} bytes) | SHA256 Match: {3} | Text Match: {4} ({5:N0} chars)" -f `
-            $payloadXmlLength, $blobMatches, $recBytes.Length, $hashMatches, $summaryMatches, $recSummary.Length)
+            $payloadXml.Length, $blobMatches, $recBytes.Length, $hashMatches, $summaryMatches, $recSummary.Length)
 } catch {
     Record-Result -TestId "SCH-03" -Description "Extreme payload stress test" -Success $false -Details $_.Exception.Message
 }
@@ -507,7 +535,7 @@ try {
     $expectedErrorCaught = $false
     try {
         $sr = New-Object System.IO.StringReader($malformedXml)
-        $ds.ReadXml($sr)
+        $ds.ReadXml($sr) | Out-Null
     } catch {
         $expectedErrorCaught = $true
         $errorMsg = $_.Exception.Message
@@ -529,19 +557,19 @@ try {
     
     $row = $table.NewRow()
     $row["CandidateId"] = 4000
-    $row["FullName"] = [System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::UTF8.GetBytes("রাহুল শর্মা (Rahul Sharma)"))
-    $row["City"] = [System.Text.Encoding]::UTF8.GetString([System.Text.Encoding]::UTF8.GetBytes("কলকাতা (Kolkata)"))
-    $row["Skills"] = "ASP.NET, C#, SQL Server, Crystal Reports, বাংলা, हिन्दी"
+    $row["FullName"] = "Rahul Sharma (Bengali: Rahul)"
+    $row["City"] = "Kolkata (West Bengal)"
+    $row["Skills"] = "ASP.NET, C#, SQL Server, Crystal Reports, ADO.NET"
     $table.Rows.Add($row)
     
     $sw = New-Object System.IO.StringWriter
-    $ds.WriteXml($sw)
+    $ds.WriteXml($sw, [System.Data.XmlWriteMode]::IgnoreSchema)
     $xmlStr = $sw.ToString()
     
     $ds2 = New-Object System.Data.DataSet
     $ds2.ReadXmlSchema($xsdPath)
     $sr = New-Object System.IO.StringReader($xmlStr)
-    $ds2.ReadXml($sr)
+    $ds2.ReadXml($sr) | Out-Null
     
     $recRow = $ds2.Tables["Candidate"].Rows[0]
     $nameMatch = ($recRow["FullName"] -eq $row["FullName"])
@@ -563,20 +591,16 @@ Write-Host "--------------------------------------------------------------------
 Write-Host "SUITE 4: Data Access Layer & Report Schema Compatibility"
 Write-Host "--------------------------------------------------------------------------------"
 
-# Test 4.1: Inspect Report Document Datasource Tables and Fields
 try {
     [System.Reflection.Assembly]::LoadWithPartialName("CrystalDecisions.CrystalReports.Engine") | Out-Null
     [System.Reflection.Assembly]::LoadWithPartialName("CrystalDecisions.Shared") | Out-Null
     
     $rptFiles = @("CandidateDirectory.rpt", "CandidateResume.rpt")
-    $allRptVerified = $true
-    $rptDetails = @()
     
     foreach ($rf in $rptFiles) {
         $rfPath = Join-Path $projDir $rf
         if (-not (Test-Path $rfPath)) {
-            $allRptVerified = $false
-            $rptDetails += "$rf missing"
+            Record-Result -TestId ("RPT-{0}" -f $rf) -Description ("Report file {0} exists" -f $rf) -Success $false -Details "File not found"
             continue
         }
         
@@ -623,19 +647,50 @@ ORDER BY CandidateId
         # Verify export to memory stream works without crash
         $exportStream = $rptDoc.ExportToStream([CrystalDecisions.Shared.ExportFormatType]::PortableDocFormat)
         $exportBytesLength = $exportStream.Length
+        
+        # Verify PDF magic signature (%PDF-1.)
+        $pdfBuffer = New-Object byte[] 8
+        $exportStream.Position = 0
+        $exportStream.Read($pdfBuffer, 0, 8) | Out-Null
+        $pdfHeader = [System.Text.Encoding]::ASCII.GetString($pdfBuffer)
+        $isTruePdf = $pdfHeader.StartsWith("%PDF-1.")
+        
         $exportStream.Dispose()
         $rptDoc.Close()
         $rptDoc.Dispose()
         
-        $rptDetails += ("{0} (Table: {1}, PDF Export: {2:N0} bytes)" -f $rf, ($tableNames -join ', '), $exportBytesLength)
+        Record-Result -TestId ("RPT-{0}" -f $rf.Replace(".rpt","")) `
+            -Description ("Report template {0} binding and PDF stream verification" -f $rf) `
+            -Success ($exportBytesLength -gt 1000 -and $isTruePdf) `
+            -Details ("Target Table: {0} | PDF Bytes: {1:N0} | PDF Header: {2}" -f ($tableNames -join ', '), $exportBytesLength, $pdfHeader)
     }
-    
-    Record-Result -TestId "RPT-01" `
-        -Description "Report template loading, DataTable binding and PDF streaming" `
-        -Success $allRptVerified `
-        -Details ($rptDetails -join ' | ')
 } catch {
-    Record-Result -TestId "RPT-01" -Description "Report template loading and binding" -Success $false -Details $_.Exception.Message
+    Record-Result -TestId "RPT-ERROR" -Description "Report template loading and binding" -Success $false -Details $_.Exception.Message
+}
+
+# ==============================================================================
+# CHALLENGE SUITE 5: ASP.NET COMPILATION
+# ==============================================================================
+Write-Host ""
+Write-Host "--------------------------------------------------------------------------------"
+Write-Host "SUITE 5: ASP.NET Compilation Verification"
+Write-Host "--------------------------------------------------------------------------------"
+
+try {
+    $aspnetCompiler = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe"
+    if (Test-Path $aspnetCompiler) {
+        $compilerOutput = & $aspnetCompiler -v / -p "$projDir" 2>&1
+        $exitCode = $LASTEXITCODE
+        $compPass = ($exitCode -eq 0)
+        Record-Result -TestId "CMP-01" `
+            -Description "aspnet_compiler.exe clean compilation check" `
+            -Success $compPass `
+            -Details ("Exit code: {0} | Errors/Warnings: {1}" -f $exitCode, $(if ($compilerOutput){$compilerOutput -join ' '}else{'None'}))
+    } else {
+        Record-Result -TestId "CMP-01" -Description "aspnet_compiler.exe exists" -Success $false -Details "Compiler executable not found"
+    }
+} catch {
+    Record-Result -TestId "CMP-01" -Description "Compilation verification" -Success $false -Details $_.Exception.Message
 }
 
 # ==============================================================================

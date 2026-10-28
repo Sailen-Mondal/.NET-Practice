@@ -1,4 +1,4 @@
-# BRIEFING — 2026-10-27T14:06:00Z
+# BRIEFING — 2026-10-27T14:22:30Z
 
 ## Mission
 Build and verify the comprehensive 4-tier opaque-box E2E automated test suite for WebSite2 Crystal Reports solution.
@@ -20,7 +20,7 @@ Build and verify the comprehensive 4-tier opaque-box E2E automated test suite fo
 
 ## Current Parent
 - Conversation ID: e5858265-aff7-4221-b161-81b87279d352
-- Updated: not yet
+- Updated: 2026-10-27T14:04:55Z
 
 ## Task Summary
 - **What to build**: E2E test specification (TEST_INFRA.md) and automated test runner (run_e2e_tests.ps1) exercising WebSite2 over HTTP.
@@ -30,6 +30,8 @@ Build and verify the comprehensive 4-tier opaque-box E2E automated test suite fo
 
 ## Key Decisions Made
 - Architecture: PowerShell-based HTTP test suite utilizing System.Net.Http / Invoke-WebRequest to simulate realistic browser interactions, extracting ViewState/EventValidation for WebForms postbacks, and asserting binary headers for PDF export and image streams.
+- Full Hidden Input Extraction: Captures and HTML-decodes all hidden inputs (including `__CRYSTALSTATE...`) from previous responses, guaranteeing complete fidelity with Crystal Reports viewer state deserialization.
+- Array Typing: Explicit typed array returns `,[string[]]` preventing PowerShell single-element array unrolling.
 
 ## Artifact Index
 - d:\.NET\.agents\teamwork\TEST_INFRA.md — Test infrastructure, architecture, and 4-tier coverage matrix.
@@ -41,6 +43,6 @@ Build and verify the comprehensive 4-tier opaque-box E2E automated test suite fo
 - None explicitly loaded; standard PowerShell and HTTP test automation methodology.
 
 ## Quality Status
-- Build/test result: Pending initial run
+- Build/test result: 94 passed, 0 failed (100% pass rate)
 - Lint status: 0 violations
-- Tests added/modified: 0 initial
+- Tests added/modified: 94 automated assertions implemented and passing

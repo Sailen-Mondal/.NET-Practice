@@ -1,4 +1,4 @@
-# BRIEFING — 2026-10-27T14:11:00Z
+# BRIEFING — 2026-10-27T14:18:00Z
 
 ## Mission
 Empirically challenge Milestone 1 (Data Architecture & Image BLOBs): test connection pooling, verify image bytes deserialize into valid GDI+ System.Drawing.Image bitmaps with 240x240 dimensions, and challenge DataSet schema.
@@ -19,33 +19,46 @@ Empirically challenge Milestone 1 (Data Architecture & Image BLOBs): test connec
 
 ## Current Parent
 - Conversation ID: e5858265-aff7-4221-b161-81b87279d352
-- Updated: 2026-10-27T14:11:00Z
+- Updated: 2026-10-27T14:18:00Z
 
 ## Review Scope
-- **Files to review**:
-  - `Web.config` (connection string)
+- **Files reviewed**:
+  - `Web.config` (connection string conStr)
   - `App_Code/CandidateDataSet.xsd` (Typed DataSet schema)
-  - `Default.aspx.cs` (Data access methods)
-  - `Images/emp*.png` and SQL Server `dbo.CandidateProfiles` table
+  - `Default.aspx.cs` (Data access methods: FetchCandidateData, PopulateCandidateDropdown)
+  - `Images/emp1.png` - `emp5.png`, `logo.png`
+  - SQL Server database `ProjectManagementDB` and table `dbo.CandidateProfiles`
+  - Report templates `CandidateDirectory.rpt` and `CandidateResume.rpt`
 - **Interface contracts**: PROJECT.md Section: Data Access Layer <-> Reporting Layer
 - **Review criteria**: Empirical correctness, resilience under load/concurrency, GDI+ bitmap integrity, schema robustness
 
 ## Key Decisions Made
-- Will execute tests using standalone test scripts outside `.agents/teamwork/` (e.g. in `d:\.NET\scripts\challenger_m1_tests.ps1`) to respect workspace rules.
-- Will verify GDI+ image loading, dimensions, format, bit depth, and raw bytes against disk files and SQL Server.
-- Will test SQL Server connection pooling under rapid open/close loops (100+ cycles) and concurrent access.
-- Will test `CandidateDataSet.xsd` with extreme payloads: nulls, DBNull, empty byte arrays, massive strings, and malformed XML.
+- Executed empirical test suite via standalone script `d:\.NET\scripts\test_m1_challenges.ps1` to keep `.agents/teamwork/` metadata-only.
+- Verified GDI+ image deserialization, dimensions (240x240 px), 8-byte PNG magic header, IHDR chunk, pixel format (Format32bppArgb), and canvas rendering for all 5 candidates.
+- Tested ADO.NET connection pool reuse across 150 sequential cycles and 20 concurrent threads.
+- Tested exception handling within `using (SqlConnection)` blocks and verified connection pool recovery after divide-by-zero errors.
+- Tested `CandidateDataSet.xsd` boundary conditions: null/DBNull, empty byte arrays, 5MB BLOBs, 12,000-character strings, invalid Base64, and Unicode text.
+- Tested Crystal Reports engine loading and PDF streaming with database-populated DataTable.
 
 ## Artifact Index
 - `d:\.NET\.agents\teamwork\challenger_m1_1\DISPATCH.md` — Dispatch instructions
 - `d:\.NET\.agents\teamwork\challenger_m1_1\BRIEFING.md` — Persistent working memory
 - `d:\.NET\.agents\teamwork\challenger_m1_1\progress.md` — Liveness heartbeat and step tracking
 - `d:\.NET\.agents\teamwork\challenger_m1_1\handoff.md` — Final 5-component challenge report and verdict
+- `d:\.NET\scripts\test_m1_challenges.ps1` — Executable verification test suite
 
 ## Attack Surface
-- **Hypotheses tested**: [TBD]
-- **Vulnerabilities found**: [TBD]
-- **Untested angles**: [TBD]
+- **Hypotheses tested**:
+  - H1: Connection pool reuse across 150 rapid cycles without pool exhaustion (CONFIRMED: 48ms total, 0.00ms warm avg).
+  - H2: 20 concurrent threads accessing database via pooled connections (CONFIRMED: 0 errors, max 1ms).
+  - H3: Runtime SQL exception cleanly releases connection without pool leak (CONFIRMED: pool healthy).
+  - H4: Parameterized queries immune to SQL injection payloads (CONFIRMED: 0 injections).
+  - H5: All 5 SQL BLOBs deserialize into valid 240x240 GDI+ PNG images (CONFIRMED: all exactly 240x240).
+  - H6: GDI+ rejects corrupt/truncated image byte payloads (CONFIRMED: ArgumentException thrown).
+  - H7: CandidateDataSet schema supports DBNull, empty arrays, 5MB payloads, and 12k char strings (CONFIRMED: 100% SHA256 match).
+  - H8: Crystal Reports binds Employee1 DataTable and streams valid %PDF-1.7 (CONFIRMED: 38KB and 33KB valid PDFs).
+- **Vulnerabilities found**: None. All 19 empirical challenges passed.
+- **Untested angles**: End-to-end HTTP viewer browser rendering (scoped to Milestone 3 and E2E track).
 
 ## Loaded Skills
 - Source: None specified explicitly in dispatch.

@@ -1,0 +1,87 @@
+@model StudentManagementSystem.Models.Project
+
+@{
+    ViewBag.Title = Model.Title + " - Project Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+        <!-- Top Back Navigation -->
+        <div style="margin-bottom: 1.25rem;">
+            <a href="@Url.Action("Index")" class="btn-apple-secondary" style="font-size: 0.825rem;">&larr; Back to Projects Workspace</a>
+        </div>
+
+        <!-- Cinematic Apple Header Card -->
+        <div class="apple-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--ap-border); padding-bottom: 1.25rem; margin-bottom: 1.5rem;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                        <span class="ap-pill ap-pill-category">@Model.Category</span>
+                        <span class="ap-pill ap-pill-neutral" style="font-family: var(--ap-font-mono);">#@Model.ProjectID</span>
+                    </div>
+                    <h1 style="font-size: 1.85rem; font-weight: 700; margin: 0; letter-spacing: -0.03em;">@Model.Title</h1>
+                    <p style="color: var(--ap-text-tertiary); font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0;">
+                        Database: [ProjectManagementDB].[dbo].[Projects] &middot; ADO.NET Architecture
+                    </p>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    @{
+                        string statusClass = "ap-pill-neutral";
+                        if (Model.Status == "In Progress") { statusClass = "ap-pill-progress"; }
+                        else if (Model.Status == "Completed") { statusClass = "ap-pill-completed"; }
+                        else if (Model.Status == "Planning") { statusClass = "ap-pill-planning"; }
+                    }
+                    <span class="ap-pill @statusClass" style="font-size: 0.85rem; padding: 4px 12px;">@Model.Status</span>
+                    <span class="ap-pill ap-pill-neutral" style="font-size: 0.85rem; padding: 4px 12px;">Priority: @Model.Priority</span>
+                </div>
+            </div>
+
+            <!-- Bento Mini Grid for Metadata -->
+            <div class="bento-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 1.5rem;">
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Lead Student</div>
+                    <div style="font-size: 1.15rem; font-weight: 600; color: var(--ap-text-primary);">@Model.LeadStudent</div>
+                    <div class="bento-subtitle">Assigned Project Lead</div>
+                </div>
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Allocated Budget</div>
+                    <div style="font-size: 1.15rem; font-weight: 600; color: var(--ap-text-primary); font-family: var(--ap-font-mono);">
+                        INR @Model.Budget.ToString("N2")
+                    </div>
+                    <div class="bento-subtitle">Direct Funding</div>
+                </div>
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Start Date</div>
+                    <div style="font-size: 1.15rem; font-weight: 600; color: var(--ap-text-primary);">@Model.StartDate.ToString("dd MMM yyyy")</div>
+                    <div class="bento-subtitle">Project Inception</div>
+                </div>
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Target Completion</div>
+                    <div style="font-size: 1.15rem; font-weight: 600; color: var(--ap-text-primary);">
+                        @(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("dd MMM yyyy") : "Ongoing")
+                    </div>
+                    <div class="bento-subtitle">Milestone Deadline</div>
+                </div>
+            </div>
+
+            <!-- Description Section -->
+            <div style="border-top: 1px solid var(--ap-border); padding-top: 1.25rem;">
+                <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--ap-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem;">
+                    Project Scope &amp; Deliverables
+                </h3>
+                <p style="font-size: 0.95rem; line-height: 1.6; color: var(--ap-text-primary); margin-bottom: 0;">
+                    @(string.IsNullOrEmpty(Model.Description) ? "No detailed description provided for this project." : Model.Description)
+                </p>
+            </div>
+
+            <!-- Action Bar -->
+            <div style="margin-top: 2rem; border-top: 1px solid var(--ap-border); padding-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                <a href="@Url.Action("Index")" class="btn-apple-secondary">&larr; Back to Workspace</a>
+                <div style="display: flex; gap: 0.5rem;">
+                    @Html.ActionLink("Edit Project", "Edit", new { id = Model.ProjectID }, new { @class = "btn-apple-primary" })
+                    @Html.ActionLink("Delete", "Delete", new { id = Model.ProjectID }, new { @class = "btn-apple-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,90 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentId = ViewContext.RouteData.Values["id"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Student &amp; Project Management</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <nav class="navbar navbar-expand-md navbar-apple sticky-top">
+        <div class="container">
+            <a href="@Url.Action("Index", "Project")" class="navbar-brand">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--ap-accent); margin-right: 2px;"></span>
+                <span>ProjectHub</span>
+                <span class="ap-pill ap-pill-neutral" style="font-size: 0.7rem; padding: 1px 7px; margin-left: 4px;">MVC 5</span>
+            </a>
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse d-md-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1" style="margin-left: 1rem;">
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Project")" class="nav-link @(currentController == "Project" ? "active" : "")">
+                            Projects Workspace
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Student")" class="nav-link @(currentController == "Student" && currentAction == "Index" ? "active" : "")">
+                            Students Directory
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Details", "Student", new { id = 2 })" class="nav-link @(currentController == "Student" && currentAction == "Details" && currentId == "2" ? "active" : "")">
+                            Student 2 (PDF Demo)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Home")" class="nav-link @(currentController == "Home" ? "active" : "")">
+                            Architecture Overview
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                    <a href="@Url.Action("Create", "Project")" class="btn-apple-primary btn-sm">
+                        + New Project
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="container body-content" id="main-content">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="ap-alert ap-alert-success" role="alert">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="ap-alert ap-alert-danger" role="alert">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <div class="container">
+        <footer class="footer-apple">
+            <div>
+                &copy; @DateTime.Now.Year ProjectManagementDB &middot; ASP.NET MVC 5 &middot; Functional Premium Architecture
+            </div>
+            <div>
+                Built with ADO.NET, Bento Grids, and Notion-style Modular Views
+            </div>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

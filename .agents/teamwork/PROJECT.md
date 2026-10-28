@@ -37,28 +37,27 @@ WebSite2 is an ASP.NET Web Site Project (WSP) targeting .NET Framework 4.5.2, ut
 | 5 | Candidate Directory Report | `CandidateDirectory.rpt` displaying candidate roster with dynamic thumbnail photo, details, skills, and resume link. | M2 | Survey 1, 3, R1 |
 | 6 | Candidate Resume Report | `CandidateResume.rpt` displaying comprehensive 1-page candidate CV dossier with large photo, bio, skills, and contact. | M2 | Survey 1, 3, R1 |
 | 7 | Dynamic Image BLOB Rendering | Crystal Reports `BlobFieldObject` dynamic image rendering served via `CrystalImageHandler.aspx`. | M2 | Survey 3, R1 |
-| 8 | Notion-Style WebForms UI | `Default.aspx` styled with Notion-like clean aesthetic, neutral palette, clean typography, zero emojis. | M3 | Survey 3, R2 |
-| 9 | Multi-Field Text Search | `txtSearch` and `btnSearch` filtering candidates across FullName, JobTitle, Department, Skills, City. | M3 | Survey 3, R2 |
-| 10 | Gender Parameter Filter | `ddlGender` filtering candidates by All, Male, Female. | M3 | Survey 3, R2 |
-| 11 | View Mode Selector | `ddlViewMode` switching between Candidate Directory roster and Individual Resume view. | M3 | Survey 3, R1, R2 |
-| 12 | Candidate Selector Dropdown | `ddlCandidate` enabling direct selection of specific candidate in Resume view mode. | M3 | Survey 3 |
-| 13 | Safe WebForms Lifecycle | `Page_Init` report document binding from Session-cached data; `Page_Unload` clean disposal. | M3 | Survey 3 |
-| 14 | Zero-Exception PDF Export | `btnExportPdf` exporting report via `ExportToStream` with `CompleteRequest()`, downloading valid PDF. | M3 | Survey 3, R2 |
-| 15 | Browser Client Printing | `btnPrint` and `CrystalReportViewer.PrintMode="Pdf"` with `@media print` CSS for clean vector printouts. | M3 | Survey 3, R2 |
-| 16 | Resume Document Hyperlinks | Hyperlinks in report and UI navigating directly to `Resumes/<candidate>_resume.pdf`. | M3 | Survey 2, 3, R1 |
+| 8 | Notion-Style WebForms UI | `Default.aspx` styled with Notion-like clean aesthetic, neutral palette, clean typography, zero emojis. | M2 | Survey 3, R2 |
+| 9 | Multi-Field Text Search | `txtSearch` and `btnSearch` filtering candidates across FullName, JobTitle, Department, Skills, City. | M2 | Survey 3, R2 |
+| 10 | Gender Parameter Filter | `ddlGender` filtering candidates by All, Male, Female. | M2 | Survey 3, R2 |
+| 11 | View Mode Selector | `ddlViewMode` switching between Candidate Directory roster and Individual Resume view. | M2 | Survey 3, R1, R2 |
+| 12 | Candidate Selector Dropdown | `ddlCandidate` enabling direct selection of specific candidate in Resume view mode. | M2 | Survey 3 |
+| 13 | Safe WebForms Lifecycle | `Page_Init` report document binding from Session-cached data; `Page_Unload` clean disposal. | M2 | Survey 3 |
+| 14 | Zero-Exception PDF Export | `btnExportPdf` exporting report via `ExportToStream` with `CompleteRequest()`, downloading valid PDF. | M2 | Survey 3, R2 |
+| 15 | Browser Client Printing | `btnPrint` and `CrystalReportViewer.PrintMode="Pdf"` with `@media print` CSS for clean vector printouts. | M2 | Survey 3, R2 |
+| 16 | Resume Document Hyperlinks | Hyperlinks in report and UI navigating directly to `Resumes/<candidate>_resume.pdf`. | M2 | Survey 2, 3, R1 |
 | 17 | E2E Test Suite (Tiers 1-4) | Comprehensive opaque-box test suite verifying all features, boundaries, combinations, and application scenarios. | E2E Track | Project Pattern |
-| 18 | Adversarial Coverage Hardening | White-box stress testing and edge-case verification (Tier 5). | M4 Phase 2 | Project Pattern |
+| 18 | Adversarial Coverage Hardening | White-box stress testing and edge-case verification (Tier 5). | M3 Phase 2 | Project Pattern |
 
 ---
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| E2E | E2E Testing Track | Design and implement automated opaque-box test suite (Tiers 1-4) and publish `TEST_READY.md`. | none | IN_PROGRESS |
-| M1 | Data Architecture & Image BLOBs | Verify SQL table, connection string, Indian candidate seed data, image files, and `CandidateDataSet.xsd` BLOB binding. | none | IN_PROGRESS |
-| M2 | Crystal Reports Templates & BLOBs | Verify and refine `CandidateDirectory.rpt` and `CandidateResume.rpt` layouts, dynamic BLOB image rendering, and schema compatibility. | M1 | PLANNED |
-| M3 | WebForms UI & Lifecycle Handlers | Implement Notion-like UI in `Default.aspx` and code-behind in `Default.aspx.cs` (Search, Gender, ViewMode, PDF Export, Print, Lifecycle). | M1, M2 | PLANNED |
-| M4 | Final Verification & Hardening | Phase 1: 100% pass of E2E Test Suite (Tiers 1-4). Phase 2: Tier 5 Adversarial Coverage Hardening. | E2E, M3 | PLANNED |
+| E2E | E2E Testing Track | Design and implement automated opaque-box test suite (Tiers 1-4) and publish `TEST_READY.md`. | none | DONE |
+| M1 | Data Architecture & Image BLOBs | Verify SQL table, connection string, Indian candidate seed data, image files, and `CandidateDataSet.xsd` BLOB binding. | none | DONE |
+| M2 | Crystal Reports & WebForms UI | Implement and verify `CandidateDirectory.rpt`, `CandidateResume.rpt`, Notion-styled `Default.aspx`, and `Default.aspx.cs` (Search, Gender filter, ViewMode selector, PDF Export, Print, and Page_Init/Page_Unload lifecycle). | M1 | IN_PROGRESS |
+| M3 | Final Verification & Hardening | Phase 1: 100% pass of E2E Test Suite (Tiers 1-4). Phase 2: Tier 5 Adversarial Coverage Hardening. | E2E, M2 | PLANNED |
 
 ---
 

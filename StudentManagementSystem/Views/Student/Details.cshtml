@@ -1,0 +1,151 @@
+@model StudentManagementSystem.Models.Student
+
+@{
+    ViewBag.Title = Model.Name + " - Student Profile";
+    
+    // Derive initials for avatar
+    string initials = "ST";
+    if (!string.IsNullOrEmpty(Model.Name))
+    {
+        var parts = Model.Name.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+        {
+            initials = parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+        }
+        else if (parts.Length > 1)
+        {
+            initials = (parts[0][0].ToString() + parts[parts.Length - 1][0].ToString()).ToUpper();
+        }
+    }
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-xl-8">
+        
+        <!-- Top Navigation & Quick Switch -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <a href="@Url.Action("Index", "Student")" class="btn-apple-secondary" style="font-size: 0.825rem;">&larr; Back to Student Directory</a>
+            
+            <div class="d-flex align-items-center gap-2">
+                <span style="font-size: 0.8rem; font-weight: 500; color: var(--ap-text-tertiary);">Quick Switch:</span>
+                <div class="apple-segmented-control" role="group" aria-label="Quick Switch Student">
+                    <a href="@Url.Action("Details", "Student", new { id = 1 })" class="apple-segmented-item @(Model.StudentID == 1 ? "active" : "")">1: Rahul</a>
+                    <a href="@Url.Action("Details", "Student", new { id = 2 })" class="apple-segmented-item @(Model.StudentID == 2 ? "active" : "")">2: James (PDF Demo)</a>
+                    <a href="@Url.Action("Details", "Student", new { id = 3 })" class="apple-segmented-item @(Model.StudentID == 3 ? "active" : "")">3: Priya</a>
+                    <a href="@Url.Action("Details", "Student", new { id = 4 })" class="apple-segmented-item @(Model.StudentID == 4 ? "active" : "")">4: Amit</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Apple-Inspired Student Profile Card -->
+        <div class="apple-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem; border-bottom: 1px solid var(--ap-border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 1.25rem;">
+                    <div class="apple-avatar">
+                        @initials
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                            <span class="ap-pill ap-pill-progress" style="font-size: 0.75rem;">Active Student</span>
+                            <span class="ap-pill ap-pill-neutral" style="font-family: var(--ap-font-mono); font-size: 0.75rem;">ID: #@Model.StudentID</span>
+                        </div>
+                        <h1 style="font-size: 1.75rem; font-weight: 700; margin: 0; letter-spacing: -0.03em; color: var(--ap-text-primary);">
+                            @Model.Name
+                        </h1>
+                        <p style="color: var(--ap-text-tertiary); font-size: 0.85rem; margin-top: 0.2rem; margin-bottom: 0;">
+                            Department of @(Model.Branch == "CSE" ? "Computer Science & Engineering" : (Model.Branch == "IT" ? "Information Technology" : "Electronics & Communication")) &middot; Section @Model.Section
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    @Html.ActionLink("View Projects Workspace", "Index", "Project", null, new { @class = "btn-apple-primary" })
+                </div>
+            </div>
+
+            <!-- Bento Mini Grid for Academic Properties -->
+            <div class="bento-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 1.5rem;">
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Student ID</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--ap-text-primary); font-family: var(--ap-font-mono);">
+                        #@Model.StudentID
+                    </div>
+                    <div class="bento-subtitle">University Registration</div>
+                </div>
+
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Academic Branch</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--ap-text-primary);">
+                        @Model.Branch
+                    </div>
+                    <div class="bento-subtitle">@(Model.Branch == "CSE" ? "Computer Science" : "Engineering Discipline")</div>
+                </div>
+
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Class Section</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--ap-text-primary);">
+                        @Model.Section
+                    </div>
+                    <div class="bento-subtitle">Batch 2026 Shift</div>
+                </div>
+
+                <div class="bento-box" style="background: var(--ap-subtle-bg); box-shadow: none;">
+                    <div class="bento-label">Gender</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--ap-text-primary);">
+                        @Model.Gender
+                    </div>
+                    <div class="bento-subtitle">Student Demographic</div>
+                </div>
+            </div>
+
+            <!-- Connected Project Showcase -->
+            <div style="background-color: #fafafc; border: 1px solid var(--ap-border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div>
+                        <span class="ap-pill ap-pill-category" style="margin-bottom: 0.35rem;">Assigned Capstone Project</span>
+                        <div style="font-size: 1.05rem; font-weight: 600; color: var(--ap-text-primary);">
+                            @if (Model.StudentID == 2) { <span>Autonomous Agro-Drone Telemetry (Project #2)</span> }
+                            else if (Model.StudentID == 1) { <span>Smart Campus Navigation System (Project #1)</span> }
+                            else if (Model.StudentID == 3) { <span>Library Resource Inventory Grid (Project #3)</span> }
+                            else { <span>High-Throughput Exam Portal (Project #4)</span> }
+                        </div>
+                    </div>
+                    <div>
+                        <a href="@Url.Action("Details", "Project", new { id = Model.StudentID })" class="btn-apple-secondary" style="font-size: 0.8rem;">
+                            View Project Details &rarr;
+                        </a>
+                    </div>
+                </div>
+                <div style="font-size: 0.825rem; color: var(--ap-text-secondary); line-height: 1.5;">
+                    @if (Model.StudentID == 2)
+                    {
+                        <span>Multispectral crop health monitoring drone with real-time cloud datalink and soil nitrogen density analytics. Status: <strong>Completed</strong> &middot; Direct Allocation: <strong>INR 1,20,000.00</strong></span>
+                    }
+                    else if (Model.StudentID == 1)
+                    {
+                        <span>Offline indoor beacon mapping and turn-by-turn wheelchair accessible navigation. Status: <strong>In Progress</strong> &middot; Direct Allocation: <strong>INR 75,000.00</strong></span>
+                    }
+                    else if (Model.StudentID == 3)
+                    {
+                        <span>Automated RFID checkout and real-time catalogue indexing platform. Status: <strong>Completed</strong> &middot; Direct Allocation: <strong>INR 45,000.00</strong></span>
+                    }
+                    else
+                    {
+                        <span>Scalable distributed testing portal supporting concurrent proctored exams. Status: <strong>Planning</strong> &middot; Direct Allocation: <strong>INR 1,80,000.00</strong></span>
+                    }
+                </div>
+            </div>
+
+            <!-- Architectural Concept Callout (Notion Style) -->
+            <div class="apple-callout">
+                <div class="apple-callout-title">
+                    ASP.NET MVC Architectural Pipeline (PDF Slide 6 Implementation)
+                </div>
+                <p class="apple-callout-text">
+                    This strongly-typed view receives an instance of <code>StudentManagementSystem.Models.Student</code> passed directly from <code>StudentController.Details(@Model.StudentID)</code> via <code>StudentBusinessLayer.GetById(@Model.StudentID)</code>. The Model-View-Controller architecture maintains strict separation between database retrieval logic and presentation formatting.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>

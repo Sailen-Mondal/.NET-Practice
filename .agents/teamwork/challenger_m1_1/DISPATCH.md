@@ -1,39 +1,30 @@
-# Task Assignment: Challenger 1 - Milestone 1 Empirical Verification
+## 2026-10-29T13:36:31Z
+You are challenger_m1_1, an adversarial testing and verification subagent.
+Your metadata working directory: D:\.NET\.agents\teamwork\challenger_m1_1\
+Original user request file: D:\.NET\.agents\teamwork\ORIGINAL_REQUEST.md (You MUST read this file first before starting work).
+Project scope document: D:\.NET\.agents\teamwork\PROJECT.md
+Worker handoff report: D:\.NET\.agents\teamwork\worker_m1\handoff.md
+Target solution directory: D:\.NET\ViewModelDemo
 
-## Target Project Directory
-C:\Users\sailenmondal\OneDrive - MANAGEMENT & COMPUTER CONSULTANTS\Documents\Visual Studio 2015\WebSites\WebSite2
+Mission:
+Adversarially challenge the responsiveness, UI interactions, and accessibility of Milestone 1 (Shared Design System & Layout Shell).
 
-## Working Directory
-d:\.NET\.agents\teamwork\challenger_m1_1
+Testing Checklist:
+1. Challenge responsive breakpoints and layout integrity:
+   - Check mobile (<768px): Verify hamburger toggle button, mobile drawer CSS, 1-column form rules, table scroll container rules.
+   - Check tablet (768px-1024px) and desktop (>1024px).
+   - Ensure no content clipping, overflow, or broken layout rules exist in site.css.
+2. Challenge JavaScript interactions in app.js:
+   - Verify mobile drawer toggle functions, aria-expanded attribute updates, and Escape key listener.
+   - Verify alert banner dismissal functions.
+   - Verify modal open/close helpers.
+3. Challenge prefers-reduced-motion:
+   - Verify media query @media (prefers-reduced-motion: reduce) enforces animation and transition duration resets.
+4. Challenge Zero Emojis:
+   - Test files D:\.NET\ViewModelDemo\Content\site.css, Scripts\app.js, Views\Shared\_Layout.cshtml, and Views\Shared\_Navigation.cshtml for any emoji characters or surrogate pairs.
+5. Conclude with a clear verdict in your handoff report: APPROVE or REJECT.
 
-## References
-- Worker Handoff: d:\.NET\.agents\teamwork\worker_m1\handoff.md
-- Project Scope: d:\.NET\.agents\teamwork\PROJECT.md
-- Original Request: d:\.NET\.agents\teamwork\ORIGINAL_REQUEST.md
-
-## Scope & Objective
-Empirically challenge Milestone 1 data and image architecture:
-1. Write and execute an adversarial script testing database resilience (rapid consecutive connections to verify connection pooling and leak prevention).
-2. Empirically verify that every `PhotoData` byte array in SQL Server can be loaded into `System.Drawing.Image` from `MemoryStream` and verify valid PNG format and dimensions (240x240 pixels).
-3. Test deserialization of `CandidateDataSet.xsd` with large and empty values to verify schema integrity.
-4. Deliver verdict: APPROVE or REJECT.
-
-## Constraints
-- STRICT: Zero emojis anywhere in files, test outputs, or messages.
-- Write your evaluation and verdict to `d:\.NET\.agents\teamwork\challenger_m1_1\handoff.md`.
-- Report verdict back to orchestrator via send_message.
-
-
-## 2026-10-27T14:10:11Z
-You are Challenger 1 for Milestone 1 (M1: Data Architecture & Image BLOBs).
-Your working directory: d:\.NET\.agents\teamwork\challenger_m1_1
-Target project directory: C:\Users\sailenmondal\OneDrive - MANAGEMENT & COMPUTER CONSULTANTS\Documents\Visual Studio 2015\WebSites\WebSite2
-Dispatch instructions: d:\.NET\.agents\teamwork\challenger_m1_1\DISPATCH.md
-Worker report: d:\.NET\.agents\teamwork\worker_m1\handoff.md
-Original request: d:\.NET\.agents\teamwork\ORIGINAL_REQUEST.md
-Project scope: d:\.NET\.agents\teamwork\PROJECT.md
-
-Empirically challenge M1: test connection pooling, verify image bytes deserialize into valid GDI+ System.Drawing.Image bitmaps with correct 240x240 dimensions, and challenge DataSet schema.
-Write your report and verdict (APPROVE or REJECT) to `d:\.NET\.agents\teamwork\challenger_m1_1\handoff.md`.
-STRICT: Zero emojis anywhere in files or messages.
-Send your verdict back to the orchestrator via send_message.
+Deliverables:
+- Write your challenge report in D:\.NET\.agents\teamwork\challenger_m1_1\challenge.md
+- Write your handoff in D:\.NET\.agents\teamwork\challenger_m1_1\handoff.md
+- Send a completion message via send_message to the parent orchestrator with your verdict.

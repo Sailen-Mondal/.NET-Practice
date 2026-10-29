@@ -1,118 +1,97 @@
-# Project: Resume and Image Show Crystal Reports Solution in WebSite2
+# Project: ViewModelDemo Frontend Modernization
 
 ## Architecture
-WebSite2 is an ASP.NET Web Site Project (WSP) targeting .NET Framework 4.5.2, utilizing SAP Crystal Reports runtime v13.0.2000.0 (Service Pack 20) and Microsoft SQL Server (MSSQLSERVER).
+ViewModelDemo is an ASP.NET MVC 5 application targeting .NET Framework 4.8.1 with direct ADO.NET data access against Microsoft SQL Server (ViewModelDB). The frontend architecture is being overhauled into a modern, responsive, highly interactive Notion-like experience while strictly preserving backend controller logic, session authentication, and validation contracts.
 
-### Core Architecture Layers
-1. **Data Access Layer (ADO.NET)**:
-   - SQL Server database: `ProjectManagementDB` via connection string `conStr`.
-   - Table: `dbo.CandidateProfiles` (16 columns including `CandidateId`, `FullName`, `JobTitle`, `Department`, `Gender`, `City`, `Skills`, `ExperienceYears`, `Summary`, `PhotoPath`, `ResumePath`, `PhotoData` varbinary(max)).
-   - In-memory schema: `App_Code/CandidateDataSet.xsd` (with `type="xs:base64Binary"` for `PhotoData`).
-   - Schema Bridge: ADO.NET query mapping `CandidateId AS ID`, `FullName AS Name`, `City AS Location` to `DataTable("Employee1")` for compatibility with `.rpt` data sources.
-2. **Reporting Layer (SAP Crystal Reports)**:
-   - Dynamic profile image rendering via `BlobFieldObject` bound to `PhotoData` byte array in memory, completely avoiding IIS file permission and Graphic Location path issues.
-   - Dynamic image delivery via `CrystalImageHandler.aspx` (registered in classic and integrated pipeline modes).
-   - `CandidateDirectory.rpt`: Tabular multi-candidate directory roster with 1-inch thumbnail, candidate details, skills, and resume link.
-   - `CandidateResume.rpt`: 1-page individual candidate profile dossier with 1.8-inch photo, executive bio, detailed skills breakdown, experience, and contact card.
-3. **Presentation Layer (ASP.NET WebForms)**:
-   - UI (`Default.aspx`): Notion-like minimalist aesthetic (neutral `#F9FAFB` background, `#FFFFFF` cards, `1px solid #E5E7EB` borders, `#111827` primary text, clean sans-serif typography, zero emojis).
-   - Standard control naming: `txtSearch`, `ddlGender`, `ddlViewMode`, `ddlCandidate`, `btnSearch`, `btnReset`, `btnExportPdf`, `btnPrint`, `crvReport`.
-   - Lifecycle (`Default.aspx.cs`): Session-based DataTable caching, `Page_Init` report document instantiation and binding for seamless viewer postbacks (paging, zooming), `Page_Unload` unmanaged handle disposal (`Close()` and `Dispose()`).
-   - Export: `ExportToStream(ExportFormatType.PortableDocFormat)` with `CompleteRequest()` preventing `ThreadAbortException`.
-   - Printing: Dual support via `PrintMode="Pdf"` on CrystalReportViewer and client-side `@media print` CSS.
-4. **Testing Track (Opaque-Box E2E)**:
-   - Independent test harness exercising the live endpoint `http://localhost:8188/Default.aspx`.
-   - Testing 4 systematic tiers: Feature Coverage (Tier 1), Boundary & Corner Cases (Tier 2), Cross-Feature Combinations (Tier 3), Real-World Scenarios (Tier 4).
-   - Phase 2 Adversarial Coverage Hardening (Tier 5).
+### Frontend Architectural System
+1. **Design System & Visual Identity**:
+   - Palette: Neutral off-white page canvas (`#fbfbfa`), pure white cards (`#ffffff`), subtle borders (`#e5e7eb`, hover `#d1d5db`), dark gray typography (`#37352f`, secondary `#6b7280`).
+   - Typography: Clean sans-serif stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif`).
+   - Strict Zero Emojis: All iconography implemented via clean inline SVG or crisp typography labels.
+   - Indian Context: Authentic Indian naming conventions (Rahul Sharma, Priya Patel, Sneha Roy, Amit Verma) and locations (Bengaluru, Kolkata, New Delhi, Mumbai, Pune) with INR (`Rs.`) currency formatting.
+2. **Modular Assets**:
+   - `Content/site.css`: Complete Notion design system stylesheet with CSS variables, component classes, utility classes, and media queries.
+   - `Scripts/app.js`: Lightweight vanilla JavaScript for interactive drawer, dismissible alert banners, confirmation modal dialogs, and smooth transitions.
+3. **Layout & Chrome**:
+   - Responsive navbar: Brand identity, route links, active page indicators, session pill (`FullName` + role badge), and mobile hamburger drawer.
+   - Notification banner: Global dismissible alert component rendering `TempData["SuccessMessage"]`, `TempData["ErrorMessage"]`, and `TempData["InfoMessage"]`.
+   - Notion-style footer: Clean metadata, session role status, and system links.
+4. **Interactive Controls & Accessibility**:
+   - Focus rings: 2px offset focus states for keyboard accessibility (`focus-visible`).
+   - State feedback: Hover, active, loading, and disabled states across buttons and inputs.
+   - Responsive tables: Horizontal scrolling containers with sticky headers and responsive card fallbacks.
+   - Prefers-reduced-motion: All CSS animations and transitions respect user reduced-motion preferences.
 
 ---
 
 ## Feature Inventory
+Every feature identified during the survey phase is mapped to an implementation milestone.
+
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Candidate Database & Schema | SQL Server `dbo.CandidateProfiles` table with 16 columns, safe ADO.NET query with `using` blocks. | M1 | Survey 2 |
-| 2 | Indian Mock Data Profiles | 5 production-ready candidate profiles adhering strictly to Indian context rules (Rahul, Priya, Amit, Sneha, Vikram; Kolkata, Mumbai, Bangalore, Delhi). | M1 | Survey 2 |
-| 3 | Dual Photo Storage & BLOBs | Image files in `Images/` (emp1.png to emp5.png, logo.png) synchronized with `PhotoData` `varbinary(max)` BLOB bytes in SQL. | M1 | Survey 2 |
-| 4 | Typed DataSet Schema | `App_Code/CandidateDataSet.xsd` defining in-memory candidate DataTable with `xs:base64Binary` for `PhotoData`. | M1 | Survey 1, 3 |
-| 5 | Candidate Directory Report | `CandidateDirectory.rpt` displaying candidate roster with dynamic thumbnail photo, details, skills, and resume link. | M2 | Survey 1, 3, R1 |
-| 6 | Candidate Resume Report | `CandidateResume.rpt` displaying comprehensive 1-page candidate CV dossier with large photo, bio, skills, and contact. | M2 | Survey 1, 3, R1 |
-| 7 | Dynamic Image BLOB Rendering | Crystal Reports `BlobFieldObject` dynamic image rendering served via `CrystalImageHandler.aspx`. | M2 | Survey 3, R1 |
-| 8 | Notion-Style WebForms UI | `Default.aspx` styled with Notion-like clean aesthetic, neutral palette, clean typography, zero emojis. | M2 | Survey 3, R2 |
-| 9 | Multi-Field Text Search | `txtSearch` and `btnSearch` filtering candidates across FullName, JobTitle, Department, Skills, City. | M2 | Survey 3, R2 |
-| 10 | Gender Parameter Filter | `ddlGender` filtering candidates by All, Male, Female. | M2 | Survey 3, R2 |
-| 11 | View Mode Selector | `ddlViewMode` switching between Candidate Directory roster and Individual Resume view. | M2 | Survey 3, R1, R2 |
-| 12 | Candidate Selector Dropdown | `ddlCandidate` enabling direct selection of specific candidate in Resume view mode. | M2 | Survey 3 |
-| 13 | Safe WebForms Lifecycle | `Page_Init` report document binding from Session-cached data; `Page_Unload` clean disposal. | M2 | Survey 3 |
-| 14 | Zero-Exception PDF Export | `btnExportPdf` exporting report via `ExportToStream` with `CompleteRequest()`, downloading valid PDF. | M2 | Survey 3, R2 |
-| 15 | Browser Client Printing | `btnPrint` and `CrystalReportViewer.PrintMode="Pdf"` with `@media print` CSS for clean vector printouts. | M2 | Survey 3, R2 |
-| 16 | Resume Document Hyperlinks | Hyperlinks in report and UI navigating directly to `Resumes/<candidate>_resume.pdf`. | M2 | Survey 2, 3, R1 |
-| 17 | E2E Test Suite (Tiers 1-4) | Comprehensive opaque-box test suite verifying all features, boundaries, combinations, and application scenarios. | E2E Track | Project Pattern |
-| 18 | Adversarial Coverage Hardening | White-box stress testing and edge-case verification (Tier 5). | M3 Phase 2 | Project Pattern |
+| F01 | User Authentication & Login | Credential login with ReturnUrl support, validation feedback, and session establishment | M2 | Survey / Spec Miner |
+| F02 | User Registration | New account registration with regex username validation and auto-login | M2 | Survey / Spec Miner |
+| F03 | Session Management & Logout | Session termination, abandonment, and redirection with info alert | M2 | Survey / Spec Miner |
+| F04 | Role-Based Access Control | Interception and redirection for restricted Admin routes and actions | M2 | Survey / Spec Miner |
+| F05 | Global Navigation & User Pill | Responsive top navigation, user status pill, and mobile drawer | M1 | Survey / Spec Miner |
+| F06 | Employee Directory & Search | Employee listing table with search filter, salary formatting, and role action links | M3 | Survey / Spec Miner |
+| F07 | Aggregated Employee Details View | Multi-model presentation combining Employee and Address details cards | M3 | Survey / Spec Miner |
+| F08 | Employee Creation Form | Multi-table composite form with atomic transaction insertion and validation | M3 | Survey / Spec Miner |
+| F09 | Employee Editing Form | Pre-populated composite form with hidden ID bindings and update transaction | M3 | Survey / Spec Miner |
+| F10 | Transactional Employee Deletion | Delete confirmation view and atomic multi-table record removal | M3 | Survey / Spec Miner |
+| F11 | Admin Workforce Dashboard | Metric cards, department distribution pills, and recent records tables | M2 | Survey / Spec Miner |
+| F12 | System User Management Directory | Complete user directory table with role badges and registration timestamps | M2 | Survey / Spec Miner |
+| F13 | Student Domain Model Raw Listing | Direct student entity listing demonstrating baseline presentation | M3 | Survey / Spec Miner |
+| F14 | Student Marks Presentation (getStud) | ViewModel presentation mapping dynamic pass/fail status badges | M3 | Survey / Spec Miner |
+| F15 | Offline Resiliency & Fallback Data | Graceful fallback data handling for offline resilience | M3 | Survey / Spec Miner |
 
 ---
 
 ## Milestones
+
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| E2E | E2E Testing Track | Design and implement automated opaque-box test suite (Tiers 1-4) and publish `TEST_READY.md`. | none | DONE |
-| M1 | Data Architecture & Image BLOBs | Verify SQL table, connection string, Indian candidate seed data, image files, and `CandidateDataSet.xsd` BLOB binding. | none | DONE |
-| M2 | Crystal Reports & WebForms UI | Implement and verify `CandidateDirectory.rpt`, `CandidateResume.rpt`, Notion-styled `Default.aspx`, and `Default.aspx.cs` (Search, Gender filter, ViewMode selector, PDF Export, Print, and Page_Init/Page_Unload lifecycle). | M1 | IN_PROGRESS |
-| M3 | Final Verification & Hardening | Phase 1: 100% pass of E2E Test Suite (Tiers 1-4). Phase 2: Tier 5 Adversarial Coverage Hardening. | E2E, M2 | PLANNED |
+| M1 | Shared Design System & Layout Shell | Layout, navigation, design tokens, CSS, JS, responsive drawer, alerts, and footer | none | PLANNED |
+| M2 | Account & Admin Modules Modernization | Login, Register, Admin Dashboard, and User Directory views | M1 | PLANNED |
+| M3 | Employee & Student Modules Modernization | Employee CRUD views (Index, Details, Create, Edit, Delete) and Student views (Index, getStud) | M1 | PLANNED |
+| M4 | Final E2E Verification & Adversarial Hardening | Pass 100% of E2E test suite (Tiers 1-4) and complete Tier 5 adversarial stress testing | M2, M3, Test Track | PLANNED |
 
 ---
 
 ## Interface Contracts
 
-### 1. Data Access Layer ↔ Reporting Layer
-- **Input**: Query parameters (`searchKeyword`, `genderFilter`, `candidateIdFilter`).
-- **Output**: `DataTable` named `"Employee1"` containing:
-  - `ID` (int) [aliased from `CandidateId`]
-  - `Name` (string) [aliased from `FullName`]
-  - `Location` (string) [aliased from `City`]
-  - `Gender` (string)
-  - `CandidateId` (int)
-  - `FullName` (string)
-  - `JobTitle` (string)
-  - `Department` (string)
-  - `Email` (string)
-  - `Phone` (string)
-  - `City` (string)
-  - `Skills` (string)
-  - `ExperienceYears` (int)
-  - `Summary` (string)
-  - `PhotoPath` (string)
-  - `ResumePath` (string)
-  - `PhotoData` (byte[]) [raw PNG/JPG image binary]
-- **Behavior**: If 0 rows match, returns empty `DataTable` with schema preserved. Never returns null.
+### Shared Layout ↔ Feature Views
+- **Stylesheet**: `<link rel="stylesheet" href="~/Content/site.css" />` included in `<head>` of `_Layout.cshtml`.
+- **Client Script**: `<script src="~/Scripts/app.js"></script>` included before `</body>` in `_Layout.cshtml`.
+- **Body Rendering**: `@RenderBody()` rendered inside `<main class="notion-main"><div class="notion-content">...</div></main>`.
+- **Alert Banners**: Render `TempData["SuccessMessage"]`, `TempData["ErrorMessage"]`, `TempData["InfoMessage"]` inside `.notion-alerts-container`.
+- **Session Identity**: `Session["CurrentUser"]` of type `ViewModelDemo.Models.UserSession` exposing `FullName`, `Username`, `Role`, `IsAdmin`.
 
-### 2. Reporting Layer ↔ Presentation Layer (CrystalReportViewer)
-- **Binding Event**: Must occur in `Page_Init` (or `Page_Load`) on every request (initial and postback).
-- **Report Types**:
-  - `CandidateDirectory.rpt`: Bound when `ddlViewMode.SelectedValue == "Summary"`.
-  - `CandidateResume.rpt`: Bound when `ddlViewMode.SelectedValue == "Resume"`.
-- **Resource Cleanup**: Active `ReportDocument` instance stored in request-scoped field, closed and disposed in `Page_Unload`.
-- **Image URL**: Generated via `CrystalImageHandler.aspx?dynamicimage=...` returning HTTP 200 with MIME `image/png`.
-
-### 3. Presentation Layer ↔ Export / Print
-- **PDF Export**:
-  - MIME: `application/pdf`
-  - Header: `Content-Disposition: attachment; filename=<ReportName>.pdf`
-  - Stream: Written directly to `Response.OutputStream`
-  - Completion: `HttpContext.Current.ApplicationInstance.CompleteRequest()`
-- **Print**:
-  - Viewer: `PrintMode="Pdf"`
-  - Client Button: `window.print()` with `@media print` CSS hiding navigation cards.
+### Form Model Binding Contracts
+- **Account Login**: POST `/Account/Login` expects `UsernameOrEmail`, `Password`, `RememberMe`, `ReturnUrl` with `@Html.AntiForgeryToken()`.
+- **Account Register**: POST `/Account/Register` expects `FullName`, `Username`, `Email`, `Password`, `ConfirmPassword` with `@Html.AntiForgeryToken()`.
+- **Employee Search**: GET `/Employee/Index` accepts query parameter `search`.
+- **Employee Create/Edit**: POST `/Employee/Create` and POST `/Employee/Edit` expect `EmployeeId`, `AddressId`, `Name`, `Gender`, `Department`, `Salary`, `Country`, `State`, `City`, `Pin` with `@Html.AntiForgeryToken()`.
+- **Employee Delete**: POST `/Employee/Delete/{id}` with `@Html.AntiForgeryToken()`.
+- **Student Presentation**: View receives `List<ViewModelDemo.ViewModels.vmStudMarks>` with `RollNo`, `Name`, `Marks`, `colorname`.
 
 ---
 
 ## Code Layout
-Project root: `C:\Users\sailenmondal\OneDrive - MANAGEMENT & COMPUTER CONSULTANTS\Documents\Visual Studio 2015\WebSites\WebSite2\`
-- `App_Code/CandidateDataSet.xsd`: Typed DataSet schema for candidate data and BLOB photos.
-- `Images/`: Profile photo assets (`emp1.png` - `emp5.png`, `logo.png`).
-- `Resumes/`: Candidate resume PDF documents (`*_resume.pdf`).
-- `crystalreportviewers13/`: Crystal Reports static viewer client files.
-- `CandidateDirectory.rpt`: Tabular candidate directory report template.
-- `CandidateResume.rpt`: Individual candidate resume report template.
-- `Default.aspx`: WebForms UI markup with Notion-like styling.
-- `Default.aspx.cs`: WebForms code-behind logic.
-- `Web.config`: ASP.NET configuration.
+
+- `D:\.NET\ViewModelDemo\Views\Shared\_Layout.cshtml`: Master shell layout
+- `D:\.NET\ViewModelDemo\Views\Shared\_Navigation.cshtml`: Header and navigation partial
+- `D:\.NET\ViewModelDemo\Content\site.css`: Complete Notion design system stylesheet
+- `D:\.NET\ViewModelDemo\Scripts\app.js`: Accessible vanilla JavaScript interactive behaviors
+- `D:\.NET\ViewModelDemo\Views\Account\Login.cshtml`: Modernized login view
+- `D:\.NET\ViewModelDemo\Views\Account\Register.cshtml`: Modernized register view
+- `D:\.NET\ViewModelDemo\Views\Admin\Dashboard.cshtml`: Modernized analytics dashboard view
+- `D:\.NET\ViewModelDemo\Views\Admin\Users.cshtml`: Modernized user directory view
+- `D:\.NET\ViewModelDemo\Views\Employee\Index.cshtml`: Modernized employee directory view
+- `D:\.NET\ViewModelDemo\Views\Employee\Details.cshtml`: Modernized employee details view
+- `D:\.NET\ViewModelDemo\Views\Employee\Create.cshtml`: Modernized employee creation view
+- `D:\.NET\ViewModelDemo\Views\Employee\Edit.cshtml`: Modernized employee editing view
+- `D:\.NET\ViewModelDemo\Views\Employee\Delete.cshtml`: Modernized employee deletion view
+- `D:\.NET\ViewModelDemo\Views\Student\Index.cshtml`: Modernized raw student listing view
+- `D:\.NET\ViewModelDemo\Views\Student\getStud.cshtml`: Modernized student marks ViewModel view
+- `D:\.NET\ViewModelDemo\Tests\E2E\`: E2E test suite and runner scripts

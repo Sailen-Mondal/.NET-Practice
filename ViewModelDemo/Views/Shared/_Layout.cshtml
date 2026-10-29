@@ -4,401 +4,100 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - ViewModel Architecture Demo</title>
-    <style>
-        :root {
-            --bg-page: #fbfbfa;
-            --bg-card: #ffffff;
-            --border-color: #e5e7eb;
-            --border-light: #f3f4f6;
-            --text-main: #37352f;
-            --text-muted: #6b7280;
-            --text-dark: #111827;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --danger: #dc2626;
-            --danger-hover: #b91c1c;
-            --success: #16a34a;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Navigation Bar */
-        .top-nav {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-        }
-
-        .nav-brand {
-            font-weight: 600;
-            font-size: 15px;
-            color: var(--text-dark);
-            text-decoration: none;
-            letter-spacing: -0.01em;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 16px;
-        }
-
-        .nav-menu a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: color 0.15s ease, background 0.15s ease;
-        }
-
-        .nav-menu a:hover {
-            color: var(--text-dark);
-            background-color: #f3f4f6;
-        }
-
-        .nav-menu a.active {
-            color: var(--text-dark);
-            font-weight: 600;
-            background-color: #f3f4f6;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 10px;
-            background-color: #f3f4f6;
-            border-radius: 9999px;
-            font-size: 13px;
-        }
-
-        .user-name {
-            font-weight: 500;
-            color: var(--text-dark);
-        }
-
-        .role-badge {
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .badge-admin {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge-user {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        /* Container & Grid */
-        .container {
-            max-width: 980px;
-            margin: 36px auto;
-            padding: 0 24px;
-        }
-
-        .container-narrow {
-            max-width: 460px;
-            margin: 48px auto;
-            padding: 0 20px;
-        }
-
-        /* Headings */
-        .page-header {
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0 0 6px 0;
-            color: var(--text-dark);
-            letter-spacing: -0.02em;
-        }
-
-        .page-subtitle {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        /* Cards */
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-top: 0;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: all 0.15s ease;
-        }
-
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 13px;
-        }
-
-        .btn-primary {
-            background-color: var(--text-dark);
-            color: #ffffff;
-            border-color: var(--text-dark);
-        }
-
-        .btn-primary:hover {
-            background-color: #000000;
-        }
-
-        .btn-secondary {
-            background-color: #ffffff;
-            color: var(--text-main);
-            border-color: var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background-color: #f3f4f6;
-            color: var(--text-dark);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: #ffffff;
-            border-color: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background-color: var(--danger-hover);
-        }
-
-        /* Forms */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #374151;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            font-size: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: #ffffff;
-            color: var(--text-dark);
-            outline: none;
-            transition: border-color 0.15s ease;
-        }
-
-        .form-control:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .text-danger {
-            color: var(--danger);
-            font-size: 12px;
-            margin-top: 4px;
-            display: block;
-        }
-
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            text-align: left;
-            padding: 10px 14px;
-            color: var(--text-muted);
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-color);
-            background-color: #f9fafb;
-        }
-
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border-light);
-            color: var(--text-dark);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tbody tr:hover {
-            background-color: #fcfcfc;
-        }
-
-        /* Action Links in Tables */
-        .action-links {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .action-link:hover {
-            text-decoration: underline;
-        }
-
-        .action-link-danger {
-            color: var(--danger);
-        }
-
-        /* Alerts */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin: 16px auto 0 auto;
-            max-width: 980px;
-        }
-
-        .alert-success {
-            background-color: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .alert-danger {
-            background-color: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .alert-info {
-            background-color: #eff6ff;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
-        }
-
-        /* Metric Tiles Grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .metric-card {
-            background-color: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        }
-
-        .metric-label {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .metric-value {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--text-dark);
-            letter-spacing: -0.02em;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            background-color: #f3f4f6;
-            color: #4b5563;
-        }
-    </style>
+    <link rel="stylesheet" href="~/Content/site.css" />
+    @RenderSection("styles", required: false)
 </head>
 <body>
     @Html.Partial("_Navigation")
-    <main>
-        @RenderBody()
+
+    @if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null || TempData["InfoMessage"] != null)
+    {
+        <div class="notion-alerts-container" aria-live="polite">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success" role="alert">
+                    <div class="alert-content">
+                        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>@TempData["SuccessMessage"]</span>
+                    </div>
+                    <button type="button" class="alert-close" aria-label="Dismiss alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <div class="alert-content">
+                        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>@TempData["ErrorMessage"]</span>
+                    </div>
+                    <button type="button" class="alert-close" aria-label="Dismiss alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            }
+            @if (TempData["InfoMessage"] != null)
+            {
+                <div class="alert alert-info" role="alert">
+                    <div class="alert-content">
+                        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>@TempData["InfoMessage"]</span>
+                    </div>
+                    <button type="button" class="alert-close" aria-label="Dismiss alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    <main class="notion-main">
+        <div class="notion-content">
+            @RenderBody()
+        </div>
     </main>
+
+    @{
+        var currentUserSession = Session["CurrentUser"] as ViewModelDemo.Models.UserSession;
+    }
+    <footer class="notion-footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <span class="footer-dot" aria-hidden="true"></span>
+                <span>ViewModel Architecture Demo &bull; ASP.NET MVC 5 &bull; SQL Server ViewModelDB</span>
+            </div>
+            <div class="footer-right">
+                <span>
+                    Session: @(currentUserSession != null ? currentUserSession.Role + " (" + currentUserSession.Username + ")" : "Guest")
+                </span>
+                <span aria-hidden="true">&bull;</span>
+                <span>&copy; @DateTime.Now.Year Sailen Mondal</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/Scripts/app.js"></script>
+    @RenderSection("scripts", required: false)
 </body>
 </html>

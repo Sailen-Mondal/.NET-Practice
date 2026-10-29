@@ -1,13 +1,10 @@
-# Gate Status: WebSite2 Crystal Reports Solution
-
-## Gate - Milestone 1: Data Architecture & Image BLOBs
+## Gate — Milestone 1 (Shared Design System & Layout Shell) — Iteration 1
 | Agent | Role | Verdict | Source |
 |-------|------|---------|--------|
-| worker_m1 | teamwork_preview_worker | DONE (Compilation 0 errors, SHA256 verified) | handoff.md |
-| reviewer_m1_1 | teamwork_preview_reviewer | APPROVE | handoff.md |
-| reviewer_m1_2 | teamwork_preview_reviewer | APPROVE | handoff.md |
-| challenger_m1_1 | teamwork_preview_challenger | APPROVE (19/19 tests passed) | handoff.md |
-| challenger_m1_2 | teamwork_preview_challenger | APPROVE (50 concurrent queries, schema bridge verified) | handoff.md |
-| auditor_m1_1 | teamwork_preview_auditor | CLEAN | handoff.md |
+| worker_m1_fix | teamwork_worker | DONE (32/32 Challenger, 173/173 E2E passed) | handoff.md |
+| reviewer_m1_1 | teamwork_reviewer | APPROVE | handoff.md |
+| reviewer_m1_2 | teamwork_reviewer | APPROVE | handoff.md |
+| challenger_m1_verify | teamwork_challenger | IN_PROGRESS | pending |
+| auditor_m1_verify | teamwork_auditor | IN_PROGRESS | pending |
 
-Gate Result: **PASS** (All criteria satisfied: Build passed, Reviews APPROVE, Challenges APPROVE, Forensic Audit CLEAN).
+Gate Result: **IN_PROGRESS**

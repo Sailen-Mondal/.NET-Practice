@@ -51,10 +51,14 @@ Every feature identified during the survey phase is mapped to an implementation 
 
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Shared Design System & Layout Shell | Layout, navigation, design tokens, CSS, JS, responsive drawer, alerts, and footer | none | PLANNED |
-| M2 | Account & Admin Modules Modernization | Login, Register, Admin Dashboard, and User Directory views | M1 | PLANNED |
+| M1 | Shared Design System & Layout Shell | Layout, navigation, design tokens, CSS, JS, responsive drawer, alerts, and footer | none | DONE |
+| M2 | Account & Admin Modules Modernization | Login, Register, Admin Dashboard, and User Directory views | M1 | IN_PROGRESS |
 | M3 | Employee & Student Modules Modernization | Employee CRUD views (Index, Details, Create, Edit, Delete) and Student views (Index, getStud) | M1 | PLANNED |
 | M4 | Final E2E Verification & Adversarial Hardening | Pass 100% of E2E test suite (Tiers 1-4) and complete Tier 5 adversarial stress testing | M2, M3, Test Track | PLANNED |
+
+### Milestone 1 Key Outputs
+- Files: `Content/site.css`, `Scripts/app.js`, `Views/Shared/_Layout.cshtml`, `Views/Shared/_Navigation.cshtml`.
+- Test Results: Clean MSBuild (0 errors, 0 warnings); TestChallengerM1 (32/32 PASS); Run-E2ETests (173/173 PASS); AdversarialSuite_M1 (20/20 PASS); TestChallengerStressM1 (31/31 PASS); Zero emojis confirmed (48,904 chars scanned).
 
 ---
 

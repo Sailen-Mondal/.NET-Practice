@@ -581,8 +581,8 @@ Write-Host "`n==================================================================
 Write-Host "SUMMARY OF EMPIRICAL TEST HARNESS RESULTS"
 Write-Host "======================================================================"
 
-$passCount = ($results | Where-Object { $_.Passed }).Count
-$failCount = ($results | Where-Object { -not $_.Passed }).Count
+$passCount = @($results | Where-Object { $_.Passed }).Count
+$failCount = @($results | Where-Object { -not $_.Passed }).Count
 $totalCount = $results.Count
 
 Write-Host "Total Tests: $totalCount"
@@ -594,4 +594,7 @@ if ($failCount -gt 0) {
     $results | Where-Object { -not $_.Passed } | ForEach-Object {
         Write-Host "[$($_.Category)] $($_.Name) - $($_.Details)"
     }
+    exit 1
+} else {
+    exit 0
 }

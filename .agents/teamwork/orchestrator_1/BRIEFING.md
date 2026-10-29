@@ -28,12 +28,12 @@ Orchestrate the comprehensive frontend transformation of ViewModelDemo ASP.NET M
   1. Survey & Architecture Mapping [completed]
   2. PROJECT.md Decomposition & Feature Inventory [completed]
   3. E2E Testing Infrastructure & Test Suite (test_writer_e2e_1) [completed: 173/173 PASS, TEST_READY.md published]
-  4. Milestone 1: Shared Design System & Layout Shell [iteration 1 gate verification active]
-  5. Milestone 2: Account & Admin Views Modernization [pending]
+  4. Milestone 1: Shared Design System & Layout Shell [completed: Gate 1 PASS]
+  5. Milestone 2: Account & Admin Views Modernization [in-progress: exploration]
   6. Milestone 3: Employee & Student Views Modernization [pending]
   7. Milestone 4: Final E2E Verification & Adversarial Hardening [pending]
-- **Current phase**: Milestone 1 Iteration 1 Final Gate Verification
-- **Current focus**: challenger_m1_verify and auditor_m1_verify evaluating verified fixes
+- **Current phase**: Milestone 2 Exploration
+- **Current focus**: 3 Explorers investigating Login/Register, Dashboard/Users, and Defect D-01
 
 ## 🔒 Key Constraints
 - DISPATCH-ONLY orchestrator: Delegate ALL work to subagents via invoke_subagent. Never write source code or run build/test commands directly.
@@ -55,10 +55,8 @@ Orchestrate the comprehensive frontend transformation of ViewModelDemo ASP.NET M
 - Survey completed by explorer_vmd_1, explorer_vmd_2, and spec_miner_vmd_1.
 - Global PROJECT.md authored with 15 enumerated features (F01-F15), 4 milestones, and explicit interface contracts.
 - E2E Test Suite delivered and verified by test_writer_e2e_1 (173 tests, 100% pass, TEST_READY.md published).
-- Milestone 1 Gate 0 evaluated: Reviewers and Auditor approved, but Challenger 1 REJECTED due to mobile overlay pointer-events blocking issue.
-- 3 Explorers (explorer_m1_fix_1, explorer_m1_fix_2, explorer_m1_fix_3) formulated root-cause remediation.
-- Worker worker_m1_fix implemented verified fixes (site.css, app.js); all 32 Challenger tests and 173 E2E tests pass.
-- Final gate verification dispatched: challenger_m1_verify and auditor_m1_verify.
+- Milestone 1 Gate PASSED (site.css, app.js, _Layout.cshtml, _Navigation.cshtml fully verified).
+- Milestone 2 initiated: Account & Admin modules modernization.
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
@@ -77,19 +75,22 @@ Orchestrate the comprehensive frontend transformation of ViewModelDemo ASP.NET M
 | explorer_m1_fix_2 | teamwork_explorer | M1 JS Resize & Modal Analysis | completed | d4039529-7d9a-42c6-8a34-ceaa95a37f4c |
 | explorer_m1_fix_3 | teamwork_explorer | M1 Test Harness Verification Analysis | completed | 70e05903-b5f1-48f6-8174-ae2e252134e5 |
 | worker_m1_fix | teamwork_worker | M1 Remediation Implementation | completed | a3a17cd7-775a-4a51-9b5a-d3df71da79b5 |
-| challenger_m1_verify | teamwork_challenger | M1 Final Empirical Verification | in-progress | 96c5e134-20aa-49c0-b38f-54d177a2096a |
-| auditor_m1_verify | teamwork_auditor | M1 Final Integrity Audit | in-progress | 12cca7a0-cd33-4b74-a4bd-753e1896453c |
+| challenger_m1_verify | teamwork_challenger | M1 Final Empirical Verification | completed (APPROVE) | 96c5e134-20aa-49c0-b38f-54d177a2096a |
+| auditor_m1_verify | teamwork_auditor | M1 Final Integrity Audit | completed (CLEAN) | 12cca7a0-cd33-4b74-a4bd-753e1896453c |
+| explorer_m2_1 | teamwork_explorer | M2 Account Views Explorer | in-progress | 98d5bd52-b8ea-46e2-af6b-ec52df552665 |
+| explorer_m2_2 | teamwork_explorer | M2 Admin Views Explorer | in-progress | 5a9e618f-10c3-48d9-812d-6068fa05d5ba |
+| explorer_m2_3 | teamwork_explorer | M2 Controller & Verification Explorer | in-progress | 5e6ffee7-c905-469c-9889-34c5f5148b98 |
 
 ## Succession Status
-- Succession required: yes (threshold 16/16 reached; awaiting active subagent completion)
-- Spawn count: 16 / 16
-- Pending subagents: 96c5e134-20aa-49c0-b38f-54d177a2096a, 12cca7a0-cd33-4b74-a4bd-753e1896453c
+- Succession required: no
+- Spawn count: 19 / 128
+- Pending subagents: 98d5bd52-b8ea-46e2-af6b-ec52df552665, 5a9e618f-10c3-48d9-812d-6068fa05d5ba, 5e6ffee7-c905-469c-9889-34c5f5148b98
 - Predecessor: none
-- Successor: not yet spawned
+- Successor: none
 
 ## Active Timers
-- Heartbeat cron: 9b01acc6-efc9-4e5e-af5d-ff81fddd8060/task-26
-- Safety timer: 9b01acc6-efc9-4e5e-af5d-ff81fddd8060/task-347
+- Heartbeat cron: 9b01acc6-efc9-4e5e-af5d-ff81fddd8060/task-454
+- Safety timer: 9b01acc6-efc9-4e5e-af5d-ff81fddd8060/task-456
 - On succession: kill all timers before spawning successor
 - On context truncation: handle timers as step 4 of the State Recovery section says
 

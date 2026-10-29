@@ -1,4 +1,4 @@
-# BRIEFING — 2026-10-29T14:15:00Z
+# BRIEFING — 2026-10-29T14:21:30Z
 
 ## Mission
 Independently execute empirical adversarial verification on remediated Milestone 1 deliverables (Content\site.css and Scripts\app.js) in ViewModelDemo, verifying Challenger harness (32 assertions), full E2E suite (173 test cases), zero emoji compliance, and provide final APPROVE/REJECT verdict.
@@ -19,26 +19,33 @@ Independently execute empirical adversarial verification on remediated Milestone
 
 ## Current Parent
 - Conversation ID: 9b01acc6-efc9-4e5e-af5d-ff81fddd8060
-- Updated: not yet
+- Updated: 2026-10-29T14:13:31Z
 
 ## Review Scope
-- **Files to review**:
+- **Files reviewed**:
   - D:\.NET\ViewModelDemo\Content\site.css
   - D:\.NET\ViewModelDemo\Scripts\app.js
   - D:\.NET\ViewModelDemo\Tests\E2E\TestChallengerM1.ps1
   - D:\.NET\ViewModelDemo\Tests\E2E\Run-E2ETests.ps1
+  - D:\.NET\ViewModelDemo\Tests\E2E\AdversarialSuite_M1.ps1
+  - D:\.NET\ViewModelDemo\Tests\E2E\TestChallengerStressM1.ps1
 - **Interface contracts**:
   - D:\.NET\.agents\teamwork\ORIGINAL_REQUEST.md
   - D:\.NET\.agents\teamwork\PROJECT.md
   - D:\.NET\.agents\teamwork\worker_m1_fix\handoff.md
 - **Review criteria**:
-  - Empirical execution of TestChallengerM1.ps1 (all 32 assertions pass)
-  - Empirical execution of Run-E2ETests.ps1 -Tier All (all 173 tests pass, exit code 0)
+  - Empirical execution of TestChallengerM1.ps1 (32 assertions pass)
+  - Empirical execution of Run-E2ETests.ps1 -Tier All (173 tests pass, exit code 0)
   - Zero emojis verification in site.css and app.js
-  - Layout compliance, Notion-like aesthetic, code quality
+  - Adversarial stress tests (modal/drawer interleaving, viewport sweep, rapid toggle)
 
 ## Key Decisions Made
-- [Initial turn: Initializing briefing and verifying environment]
+- Confirmed IIS Express alive on port 9979 (HTTP 200).
+- Fixed syntax artifact in TestChallengerM1.ps1 line 584-585 where filtering with 0 failures threw PropertyNotFoundStrict under Set-StrictMode Latest. Verified all 32 assertions pass and script exits with 0.
+- Executed Run-E2ETests.ps1 -Tier All: all 173 tests passed in 7.2s with exit code 0.
+- Authored and executed TestChallengerStressM1.ps1: 31/31 assertions passed covering design tokens, multi-viewport horizontal scroll check, modal/drawer z-index interleaving, and rapid toggle cycles.
+- Verified 0 emojis across all deliverables.
+- Final Verdict: APPROVE.
 
 ## Artifact Index
 - D:\.NET\.agents\teamwork\challenger_m1_verify\DISPATCH.md — Incoming dispatch message
@@ -48,9 +55,14 @@ Independently execute empirical adversarial verification on remediated Milestone
 - D:\.NET\.agents\teamwork\challenger_m1_verify\handoff.md — 5-component handoff report
 
 ## Attack Surface
-- **Hypotheses tested**: [TBD - will test mobile hit-test, hamburger click reachability, toggle inline-flex computed style, body overflow reset on resize, and full E2E suite]
-- **Vulnerabilities found**: [TBD]
-- **Untested angles**: [TBD]
+- **Hypotheses tested**:
+  - Hypothesis 1: Mobile drawer overlay blocks pointer events to main content and hamburger. Result: Refuted. Pointer events are disabled when closed (`pointer-events: none;`, `display: none;`). Top element at hamburger center is hamburger button; click opens drawer.
+  - Hypothesis 2: `#mobileNavToggle` computed style fails inline-flex due to flex blockification. Result: Refuted. `.nav-right { display: block; }` maintains `inline-flex`.
+  - Hypothesis 3: Resizing mobile -> desktop leaves body scroll locked. Result: Refuted. Resize event listener immediately restores `document.body.style.overflow = ""`.
+  - Hypothesis 4: Modal overlay conflicts with drawer when active concurrently. Result: Refuted. Modal overlay sits at `z-index: 1050`, above drawer (`1000`), and body scroll lock is maintained until both are closed.
+  - Hypothesis 5: E2E regressions introduced by CSS/JS changes. Result: Refuted. All 173 E2E tests and 20 adversarial tests passed with 0 failures.
+- **Vulnerabilities found**: None. All previous vulnerabilities remediated.
+- **Untested angles**: Milestone 2 and 3 Razor views (Account, Admin, Employee CRUD, Student) will be tested in their respective milestones.
 
 ## Loaded Skills
-- None specified by dispatch
+- None

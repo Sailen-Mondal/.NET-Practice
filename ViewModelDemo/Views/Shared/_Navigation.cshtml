@@ -1,0 +1,48 @@
+@{
+    var currentUser = Session["CurrentUser"] as ViewModelDemo.Models.UserSession;
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+<header class="top-nav">
+    <div class="nav-left">
+        <a class="nav-brand" href="/Employee/Index">ViewModel Architecture Demo</a>
+        <nav class="nav-menu">
+            <a class="@(currentController == "Employee" && currentAction == "Index" ? "active" : "")" href="/Employee/Index">Employees (CRUD)</a>
+            <a class="@(currentController == "Employee" && currentAction == "Details" ? "active" : "")" href="/Employee/Details">Details (Aggregation)</a>
+            <a class="@(currentController == "Student" && currentAction == "getStud" ? "active" : "")" href="/Student/getStud">Student Marks (UI Logic)</a>
+            @if (currentUser != null && currentUser.IsAdmin)
+            {
+                <a class="@(currentController == "Admin" && currentAction == "Dashboard" ? "active" : "")" href="/Admin/Dashboard">Admin Dashboard</a>
+                <a class="@(currentController == "Admin" && currentAction == "Users" ? "active" : "")" href="/Admin/Users">Users</a>
+            }
+        </nav>
+    </div>
+    <div class="nav-right">
+        @if (currentUser != null)
+        {
+            <div class="user-pill">
+                <span class="user-name">@currentUser.FullName</span>
+                <span class="role-badge @(currentUser.IsAdmin ? "badge-admin" : "badge-user")">@currentUser.Role</span>
+            </div>
+            <a href="/Account/Logout" class="btn btn-secondary btn-sm">Logout</a>
+        }
+        else
+        {
+            <a href="/Account/Login" class="btn btn-secondary btn-sm">Login</a>
+            <a href="/Account/Register" class="btn btn-primary btn-sm">Register</a>
+        }
+    </div>
+</header>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info">@TempData["InfoMessage"]</div>
+}

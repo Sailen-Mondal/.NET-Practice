@@ -1,0 +1,89 @@
+@model IEnumerable<ViewModelDemo.ViewModels.EmployeeListItemViewModel>
+@{
+    ViewBag.Title = "Employee Directory";
+    var currentUser = Session["CurrentUser"] as ViewModelDemo.Models.UserSession;
+    bool isAdmin = currentUser != null && currentUser.IsAdmin;
+}
+
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Employee Directory</h1>
+            <p class="page-subtitle">Multi-table relational data managed through ViewModels and ADO.NET</p>
+        </div>
+        <div>
+            @if (isAdmin)
+            {
+                <a href="/Employee/Create" class="btn btn-primary">+ Add New Employee</a>
+            }
+            else
+            {
+                <a href="/Account/Login?returnUrl=/Employee/Create" class="btn btn-secondary" title="Login as Admin to create employees">+ Add Employee (Admin)</a>
+            }
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="card" style="padding: 16px 20px; margin-bottom: 20px;">
+        @using (Html.BeginForm("Index", "Employee", FormMethod.Get, new { style = "display: flex; gap: 12px; align-items: center;" }))
+        {
+            <input type="text" name="search" value="@ViewBag.SearchTerm" placeholder="Search by name, department, or city..." class="form-control" style="flex: 1;" />
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+            if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+            {
+                <a href="/Employee/Index" class="btn btn-secondary btn-sm">Clear</a>
+            }
+        }
+    </div>
+
+    <!-- Directory Table -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Employee Name</th>
+                    <th>Gender</th>
+                    <th>Department</th>
+                    <th>Salary</th>
+                    <th>Location</th>
+                    <th style="width: 170px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted);">
+                            No employee records found matching your search.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var emp in Model)
+                    {
+                        <tr>
+                            <td>@emp.EmployeeId</td>
+                            <td><strong>@emp.Name</strong></td>
+                            <td>@emp.Gender</td>
+                            <td><span class="tag">@emp.Department</span></td>
+                            <td>@emp.FormattedSalary</td>
+                            <td>@emp.Location</td>
+                            <td>
+                                <div class="action-links">
+                                    <a href="/Employee/Details/@emp.EmployeeId" class="action-link">View</a>
+                                    @if (isAdmin)
+                                    {
+                                        <a href="/Employee/Edit/@emp.EmployeeId" class="action-link">Edit</a>
+                                        <a href="/Employee/Delete/@emp.EmployeeId" class="action-link action-link-danger">Delete</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

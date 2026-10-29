@@ -1,0 +1,42 @@
+@model IEnumerable<ViewModelDemo.ViewModels.vmStudMarks>
+@{
+    ViewBag.Title = "Student Marks Status";
+}
+
+<div class="container" style="max-width: 760px;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">getStud - Student Marks Status</h1>
+            <p class="page-subtitle">Demonstrating UI formatting and conditional status logic encapsulated in a ViewModel (Marks > 35 highlighted in Green, else Red)</p>
+        </div>
+        <div>
+            <a href="/Student/Index" class="btn btn-secondary">View Raw Domain Model</a>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 100px;">Roll No</th>
+                    <th>Student Name</th>
+                    <th style="width: 140px;">Marks Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.RollNo</td>
+                        <td><strong>@item.Name</strong></td>
+                        <td>
+                            <span class="marks-badge" style="background-color: @item.colorname; display: inline-block; padding: 3px 10px; border-radius: 4px; font-weight: 600; color: #ffffff; font-size: 13px;">
+                                @item.Marks
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

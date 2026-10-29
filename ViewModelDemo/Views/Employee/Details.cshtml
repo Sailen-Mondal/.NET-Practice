@@ -1,0 +1,62 @@
+@model ViewModelDemo.ViewModels.EmployeeDetailsViewModel
+@{
+    ViewBag.Title = Model.PageTitle;
+    var currentUser = Session["CurrentUser"] as ViewModelDemo.Models.UserSession;
+    bool isAdmin = currentUser != null && currentUser.IsAdmin;
+}
+
+<div class="container" style="max-width: 760px;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">@Model.PageHeader</h1>
+            <p class="page-subtitle">Demonstrating Multiple Model Aggregation into a single ViewModel</p>
+        </div>
+        <div>
+            @if (isAdmin)
+            {
+                <a href="/Employee/Edit/@Model.Employee.EmployeeId" class="btn btn-secondary">Edit Employee</a>
+            }
+            <a href="/Employee/Index" class="btn btn-secondary" style="margin-left: 6px;">&larr; Directory</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Employee Basic Information</h2>
+        <div style="display: grid; grid-template-columns: 140px 1fr; row-gap: 12px; font-size: 14px;">
+            <div style="color: var(--text-muted); font-weight: 500;">Employee ID</div>
+            <div style="color: var(--text-dark);">@Model.Employee.EmployeeId</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Name</div>
+            <div style="color: var(--text-dark);"><strong>@Model.Employee.Name</strong></div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Gender</div>
+            <div style="color: var(--text-dark);">@Model.Employee.Gender</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Department</div>
+            <div style="color: var(--text-dark);"><span class="tag">@Model.Employee.Department</span></div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Salary</div>
+            <div style="color: var(--text-dark);">Rs. @Model.Employee.Salary.ToString("N2")</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Employee Address Information</h2>
+        <div style="display: grid; grid-template-columns: 140px 1fr; row-gap: 12px; font-size: 14px;">
+            <div style="color: var(--text-muted); font-weight: 500;">Address ID</div>
+            <div style="color: var(--text-dark);">@Model.Address.AddressId</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">City</div>
+            <div style="color: var(--text-dark);">@Model.Address.City</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">State</div>
+            <div style="color: var(--text-dark);">@Model.Address.State</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Country</div>
+            <div style="color: var(--text-dark);">@Model.Address.Country</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">PIN Code</div>
+            <div style="color: var(--text-dark);">@Model.Address.Pin</div>
+        </div>
+    </div>
+</div>

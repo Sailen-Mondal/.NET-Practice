@@ -1,0 +1,46 @@
+@model IEnumerable<ViewModelDemo.Models.User>
+@{
+    ViewBag.Title = "System Users";
+}
+
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Registered System Users</h1>
+            <p class="page-subtitle">All user accounts with role permissions</p>
+        </div>
+        <div>
+            <a href="/Admin/Dashboard" class="btn btn-secondary">&larr; Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">ID</th>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th style="width: 120px;">Role</th>
+                    <th style="width: 160px;">Created Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.UserId</td>
+                        <td><code>@user.Username</code></td>
+                        <td><strong>@user.FullName</strong></td>
+                        <td>@user.Email</td>
+                        <td>
+                            <span class="role-badge @(user.Role == "Admin" ? "badge-admin" : "badge-user")">@user.Role</span>
+                        </td>
+                        <td>@user.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

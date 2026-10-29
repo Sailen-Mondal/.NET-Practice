@@ -1,0 +1,125 @@
+@model ViewModelDemo.ViewModels.AdminDashboardViewModel
+@{
+    ViewBag.Title = "Admin Dashboard";
+    var currentUser = Session["CurrentUser"] as ViewModelDemo.Models.UserSession;
+}
+
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Administrator Dashboard</h1>
+            <p class="page-subtitle">Real-time metrics, workforce analytics, and system management</p>
+        </div>
+        <div>
+            <a href="/Employee/Create" class="btn btn-primary">+ Add New Employee</a>
+            <a href="/Admin/Users" class="btn btn-secondary" style="margin-left: 8px;">View All Users</a>
+        </div>
+    </div>
+
+    <!-- Metrics Overview Grid -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Total Employees</div>
+            <div class="metric-value">@Model.TotalEmployees</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Registered Users</div>
+            <div class="metric-value">@Model.TotalUsers</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Monthly Payroll</div>
+            <div class="metric-value">@Model.FormattedTotalPayroll</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Average Salary</div>
+            <div class="metric-value">@Model.FormattedAverageSalary</div>
+        </div>
+    </div>
+
+    <!-- Department Distribution Card -->
+    <div class="card">
+        <h2 class="card-header">Workforce by Department</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            @foreach (var dept in Model.DepartmentCounts)
+            {
+                <span class="tag" style="padding: 6px 12px; font-size: 13px;">
+                    <strong>@dept.Key:</strong> @dept.Value employee@(dept.Value > 1 ? "s" : "")
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Recent Employees Table -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 class="card-header" style="margin: 0; padding: 0; border: none;">Recent Employee Additions</h2>
+            <a href="/Employee/Index" class="action-link">View Full Directory &rarr;</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Salary</th>
+                    <th>Location</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var emp in Model.RecentEmployees)
+                {
+                    <tr>
+                        <td>@emp.EmployeeId</td>
+                        <td><strong>@emp.Name</strong></td>
+                        <td><span class="tag">@emp.Department</span></td>
+                        <td>@emp.FormattedSalary</td>
+                        <td>@emp.Location</td>
+                        <td>
+                            <div class="action-links">
+                                <a href="/Employee/Details/@emp.EmployeeId" class="action-link">View</a>
+                                <a href="/Employee/Edit/@emp.EmployeeId" class="action-link">Edit</a>
+                                <a href="/Employee/Delete/@emp.EmployeeId" class="action-link action-link-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Users Table -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 class="card-header" style="margin: 0; padding: 0; border: none;">Recent User Registrations</h2>
+            <a href="/Admin/Users" class="action-link">Manage Users &rarr;</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Assigned Role</th>
+                    <th>Registration Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.RecentUsers)
+                {
+                    <tr>
+                        <td>@u.UserId</td>
+                        <td><code>@u.Username</code></td>
+                        <td>@u.FullName</td>
+                        <td>@u.Email</td>
+                        <td>
+                            <span class="role-badge @(u.Role == "Admin" ? "badge-admin" : "badge-user")">@u.Role</span>
+                        </td>
+                        <td>@u.CreatedAt.ToString("MMM dd, yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

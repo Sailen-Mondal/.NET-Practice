@@ -1,0 +1,44 @@
+@model ViewModelDemo.ViewModels.EmployeeFormViewModel
+@{
+    ViewBag.Title = "Delete Employee";
+}
+
+<div class="container" style="max-width: 600px;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Delete Employee Record</h1>
+            <p class="page-subtitle">Are you sure you want to permanently delete this record?</p>
+        </div>
+        <div>
+            <a href="/Employee/Index" class="btn btn-secondary">&larr; Cancel</a>
+        </div>
+    </div>
+
+    <div class="card" style="border-left: 4px solid var(--danger);">
+        <h2 class="card-header" style="color: var(--danger);">Record to be Removed</h2>
+
+        <div style="display: grid; grid-template-columns: 140px 1fr; row-gap: 12px; font-size: 14px;">
+            <div style="color: var(--text-muted); font-weight: 500;">Employee ID</div>
+            <div><strong>@Model.EmployeeId</strong></div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Name</div>
+            <div><strong>@Model.Name</strong></div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Department</div>
+            <div>@Model.Department</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Salary</div>
+            <div>Rs. @Model.Salary.ToString("N2")</div>
+
+            <div style="color: var(--text-muted); font-weight: 500;">Location</div>
+            <div>@Model.City, @Model.State (@Model.Country) - PIN: @Model.Pin</div>
+        </div>
+
+        @using (Html.BeginForm("Delete", "Employee", new { id = Model.EmployeeId }, FormMethod.Post, new { style = "margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 12px;" }))
+        {
+            @Html.AntiForgeryToken()
+            <a href="/Employee/Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        }
+    </div>
+</div>

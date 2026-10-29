@@ -1,0 +1,94 @@
+@model ViewModelDemo.ViewModels.EmployeeFormViewModel
+@{
+    ViewBag.Title = Model.PageTitle;
+}
+
+<div class="container" style="max-width: 680px;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">@Model.PageHeader</h1>
+            <p class="page-subtitle">Demonstrating multi-table data capture using a single ViewModel</p>
+        </div>
+        <div>
+            <a href="/Employee/Index" class="btn btn-secondary">&larr; Back to Directory</a>
+        </div>
+    </div>
+
+    @using (Html.BeginForm("Create", "Employee", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" style="margin-bottom: 20px;">
+                @Html.ValidationSummary(true, "")
+            </div>
+        }
+
+        <!-- Section 1: Employee Basic Information -->
+        <div class="card">
+            <h2 class="card-header">1. Employee Personal & Work Information</h2>
+
+            <div class="form-group">
+                <label class="form-label" for="Name">Full Name</label>
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "e.g. Rahul Sharma" })
+                @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="Gender">Gender</label>
+                    @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female", "Other" }), "-- Select Gender --", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="Department">Department</label>
+                    @Html.DropDownListFor(m => m.Department, new SelectList(new[] { "Engineering", "IT", "HR", "Finance", "Marketing", "Operations" }), "-- Select Department --", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Department, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="Salary">Monthly Salary (INR)</label>
+                @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", placeholder = "e.g. 75000", type = "number", step = "100" })
+                @Html.ValidationMessageFor(m => m.Salary, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <!-- Section 2: Address Information -->
+        <div class="card">
+            <h2 class="card-header">2. Residential Address Information</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="City">City</label>
+                    @Html.TextBoxFor(m => m.City, new { @class = "form-control", placeholder = "e.g. Bengaluru" })
+                    @Html.ValidationMessageFor(m => m.City, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="State">State</label>
+                    @Html.TextBoxFor(m => m.State, new { @class = "form-control", placeholder = "e.g. Karnataka" })
+                    @Html.ValidationMessageFor(m => m.State, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="Country">Country</label>
+                    @Html.TextBoxFor(m => m.Country, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Country, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="Pin">PIN Code</label>
+                    @Html.TextBoxFor(m => m.Pin, new { @class = "form-control", placeholder = "e.g. 560001" })
+                    @Html.ValidationMessageFor(m => m.Pin, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+            <a href="/Employee/Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">@Model.SubmitButtonText</button>
+        </div>
+    }
+</div>

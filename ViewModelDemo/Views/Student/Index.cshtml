@@ -1,0 +1,38 @@
+@model IEnumerable<ViewModelDemo.Models.Student>
+@{
+    ViewBag.Title = "Student Raw List";
+}
+
+<div class="container" style="max-width: 760px;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Student Domain Model List</h1>
+            <p class="page-subtitle">Standard list binding using raw domain model before introducing ViewModel presentation logic</p>
+        </div>
+        <div>
+            <a href="/Student/getStud" class="btn btn-primary">View with ViewModel Formatting &rarr;</a>
+        </div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 100px;">Roll No</th>
+                    <th>Student Name</th>
+                    <th style="width: 140px;">Marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.RollNo</td>
+                        <td><strong>@item.Name</strong></td>
+                        <td>@item.Marks</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+@model ViewModelDemo.ViewModels.RegisterViewModel
+@{
+    ViewBag.Title = "Create an Account";
+}
+
+<div class="container-narrow">
+    <div class="card">
+        <h1 class="card-header" style="font-size: 20px; text-align: center; margin-bottom: 20px;">Create a New Account</h1>
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger" style="margin-bottom: 16px;">
+                    @Html.ValidationSummary(true, "")
+                </div>
+            }
+
+            <div class="form-group">
+                <label class="form-label" for="FullName">Full Name</label>
+                @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "e.g. Sneha Roy" })
+                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="Username">Username</label>
+                @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "e.g. sneha_roy" })
+                @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="Email">Email Address</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "name@example.com", type = "email" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="Password">Password (minimum 6 characters)</label>
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Choose a strong password" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ConfirmPassword">Confirm Password</label>
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Re-type password" })
+                @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">Create Account</button>
+        }
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); font-size: 13px; color: var(--text-muted); text-align: center;">
+            Already registered? <a href="/Account/Login" style="color: var(--primary); text-decoration: none; font-weight: 500;">Sign in here</a>
+        </div>
+    </div>
+</div>

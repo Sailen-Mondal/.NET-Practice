@@ -1,0 +1,140 @@
+@{
+    ViewBag.Title = "Welcome";
+    var currentUser = Session["CurrentUser"] as ViewModelDemo.Models.UserSession;
+}
+
+<div class="container" style="max-width: 900px; padding-top: 24px; padding-bottom: 48px;">
+    <!-- Hero Section -->
+    <div style="text-align: center; margin-bottom: 40px;">
+        <span class="tag" style="margin-bottom: 14px; display: inline-block; font-size: 12px; padding: 5px 12px;">
+            ASP.NET MVC 5 &bull; ViewModel Architecture &bull; ADO.NET
+        </span>
+        <h1 style="font-size: 36px; font-weight: 700; letter-spacing: -0.03em; color: var(--text-dark); margin: 0 0 12px 0; line-height: 1.2;">
+            ViewModel Architecture Demo
+        </h1>
+        <p style="font-size: 16px; color: var(--text-muted); max-width: 640px; margin: 0 auto 28px auto; line-height: 1.6;">
+            A clean, production-grade demonstration of ViewModel design patterns, multi-model aggregation, UI presentational logic, and transactional CRUD with role-based access control.
+        </p>
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            @if (currentUser != null)
+            {
+                <a href="/Employee/Index" class="btn btn-primary btn-lg">
+                    Go to Employee Directory &rarr;
+                </a>
+                if (currentUser.IsAdmin)
+                {
+                    <a href="/Admin/Dashboard" class="btn btn-secondary btn-lg">
+                        Admin Dashboard
+                    </a>
+                }
+                <a href="/Account/Logout" class="btn btn-secondary btn-lg">
+                    Sign Out
+                </a>
+            }
+            else
+            {
+                <a href="/Account/Login" class="btn btn-primary btn-lg">
+                    Sign In to Access Directory &rarr;
+                </a>
+                <a href="/Account/Register" class="btn btn-secondary btn-lg">
+                    Create an Account
+                </a>
+                <a href="/Student/getStud" class="btn btn-secondary btn-lg">
+                    View Student Marks Demo
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Access Test Credentials (when not logged in) -->
+    @if (currentUser == null)
+    {
+        <div class="card" style="margin-bottom: 36px; background-color: var(--surface-subtle); border: 1px dashed var(--border-medium); padding: 20px 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary);">
+                    System Authentication Gate
+                </span>
+                <span class="tag" style="font-size: 11px;">Pre-Seeded SQL Accounts</span>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                Employee records and directory details are secured behind authentication. Use these test credentials to sign in:
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                <div style="background: var(--surface-card); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;">
+                            Administrator <span class="role-badge badge-admin" style="font-size: 10px; margin-left: 4px;">Admin</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Full CRUD + Metrics Dashboard</div>
+                        <div style="font-family: var(--font-mono); font-size: 12px; margin-top: 4px; color: var(--text-secondary);">
+                            <code>admin</code> / <code>Admin@123</code>
+                        </div>
+                    </div>
+                    <a href="/Account/Login" class="btn btn-secondary btn-sm">Login</a>
+                </div>
+                <div style="background: var(--surface-card); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;">
+                            Standard User <span class="role-badge badge-user" style="font-size: 10px; margin-left: 4px;">User</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Read-Only Directory Access</div>
+                        <div style="font-family: var(--font-mono); font-size: 12px; margin-top: 4px; color: var(--text-secondary);">
+                            <code>rahul</code> / <code>User@123</code>
+                        </div>
+                    </div>
+                    <a href="/Account/Login" class="btn btn-secondary btn-sm">Login</a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Core Architectural Pillars -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 36px;">
+        <div class="card" style="padding: 24px;">
+            <div style="width: 36px; height: 36px; border-radius: 6px; background-color: var(--surface-subtle); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+            </div>
+            <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 8px 0; color: var(--text-dark);">
+                Model Aggregation
+            </h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 14px 0; line-height: 1.5;">
+                Bundles independent <code>Employee</code> and <code>Address</code> models with page headers into a strongly-typed <code>EmployeeDetailsViewModel</code>.
+            </p>
+            <a href="/Employee/Details/101" class="action-link" style="font-size: 13px;">View Aggregation Pattern &rarr;</a>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+            <div style="width: 36px; height: 36px; border-radius: 6px; background-color: var(--surface-subtle); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+            </div>
+            <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 8px 0; color: var(--text-dark);">
+                Presentational Logic
+            </h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 14px 0; line-height: 1.5;">
+                Separates UI formatting from raw domain data. <code>vmStudMarks</code> calculates conditional green/red status badges based on score thresholds.
+            </p>
+            <a href="/Student/getStud" class="action-link" style="font-size: 13px;">View Student Marks Demo &rarr;</a>
+        </div>
+
+        <div class="card" style="padding: 24px;">
+            <div style="width: 36px; height: 36px; border-radius: 6px; background-color: var(--surface-subtle); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+            </div>
+            <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 8px 0; color: var(--text-dark);">
+                Role-Based CRUD
+            </h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 14px 0; line-height: 1.5;">
+                Multi-table transactional operations backed by ADO.NET <code>SqlTransaction</code>. Administrative routes and mutations are strictly role-guarded.
+            </p>
+            <a href="/Account/Login" class="action-link" style="font-size: 13px;">Sign In to Test CRUD &rarr;</a>
+        </div>
+    </div>
+</div>

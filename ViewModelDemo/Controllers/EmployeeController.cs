@@ -16,15 +16,29 @@ namespace ViewModelDemo.Controllers
         // GET: /Employee/Index (Employee Directory Table)
         public ActionResult Index(string search)
         {
+            UserSession user = GetCurrentUser();
+            if (user == null)
+            {
+                TempData["InfoMessage"] = "Please sign in to access the employee directory.";
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Employee/Index" });
+            }
+
             List<EmployeeListItemViewModel> employees = DatabaseHelper.GetAllEmployees(search);
             ViewBag.SearchTerm = search;
-            ViewBag.CurrentUser = GetCurrentUser();
+            ViewBag.CurrentUser = user;
             return View(employees);
         }
 
         // GET: /Employee/Details/101
         public ActionResult Details(int id = 101)
         {
+            UserSession user = GetCurrentUser();
+            if (user == null)
+            {
+                TempData["InfoMessage"] = "Please sign in to view employee details.";
+                return RedirectToAction("Login", "Account", new { returnUrl = "/Employee/Details/" + id });
+            }
+
             var data = DatabaseHelper.GetEmployeeWithAddress(id);
             Employee employee = data.employee;
             Address address = data.address;
@@ -37,7 +51,7 @@ namespace ViewModelDemo.Controllers
                 PageHeader = "Employee Details"
             };
 
-            ViewBag.CurrentUser = GetCurrentUser();
+            ViewBag.CurrentUser = user;
             return View(employeeDetailsViewModel);
         }
 

@@ -1,0 +1,296 @@
+﻿[
+    {
+        "Id":  "SEC1-01",
+        "Category":  "Baseline",
+        "Name":  "Login Endpoint Returns 200",
+        "Passed":  true,
+        "Details":  "Status: 200, ContentLength: 14643"
+    },
+    {
+        "Id":  "SEC1-02",
+        "Category":  "Visual",
+        "Name":  "Login Rendered HTML Zero Emojis",
+        "Passed":  true,
+        "Details":  "Scanned 14643 characters. Contains emojis: False"
+    },
+    {
+        "Id":  "SEC1-03",
+        "Category":  "Baseline",
+        "Name":  "Register Endpoint Returns 200",
+        "Passed":  true,
+        "Details":  "Status: 200, ContentLength: 12461"
+    },
+    {
+        "Id":  "SEC1-04",
+        "Category":  "Visual",
+        "Name":  "Register Rendered HTML Zero Emojis",
+        "Passed":  true,
+        "Details":  "Scanned 12461 characters. Contains emojis: False"
+    },
+    {
+        "Id":  "SEC2-01",
+        "Category":  "UI",
+        "Name":  "Login Card Container and Headings",
+        "Passed":  true,
+        "Details":  "Card: True, Title: True, Subtitle: True"
+    },
+    {
+        "Id":  "SEC2-02",
+        "Category":  "UI",
+        "Name":  "Login Form Inputs and Accessible Labels",
+        "Passed":  true,
+        "Details":  "UserInput: True, PassInput: True, Labels: True, RequiredStars: True"
+    },
+    {
+        "Id":  "SEC2-03",
+        "Category":  "UI",
+        "Name":  "Login Pre-Configured Test Accounts Callout",
+        "Passed":  true,
+        "Details":  "DemoCard: True, quickFill: True, AdminBadge: True, UserBadge: True"
+    },
+    {
+        "Id":  "SEC2-04",
+        "Category":  "UI",
+        "Name":  "Focus and Focus-Visible Ring Styles in site.css",
+        "Passed":  true,
+        "Details":  "site.css Status: 200, Focus ring defined: True"
+    },
+    {
+        "Id":  "SEC2-05",
+        "Category":  "UI",
+        "Name":  "Register Card, Hint, and Indian Context",
+        "Passed":  true,
+        "Details":  "Card: True, Title: True, RegexHint: True, IndianContext: True"
+    },
+    {
+        "Id":  "SEC3-01",
+        "Category":  "Security",
+        "Name":  "Login Rejects Missing Anti-Forgery Token",
+        "Passed":  true,
+        "Details":  "Expected HTTP 500 (HttpAntiForgeryException), Received: 500"
+    },
+    {
+        "Id":  "SEC3-02",
+        "Category":  "Security",
+        "Name":  "Login Rejects Forged Anti-Forgery Token",
+        "Passed":  true,
+        "Details":  "Expected HTTP 500 (HttpAntiForgeryException), Received: 500"
+    },
+    {
+        "Id":  "SEC3-03",
+        "Category":  "Security",
+        "Name":  "Register Rejects Missing Anti-Forgery Token",
+        "Passed":  true,
+        "Details":  "Expected HTTP 500 (HttpAntiForgeryException), Received: 500"
+    },
+    {
+        "Id":  "SEC3-04",
+        "Category":  "Security",
+        "Name":  "Register Rejects Forged Anti-Forgery Token",
+        "Passed":  true,
+        "Details":  "Expected HTTP 500 (HttpAntiForgeryException), Received: 500"
+    },
+    {
+        "Id":  "SEC4-01",
+        "Category":  "Auth",
+        "Name":  "Valid Admin Login and Dashboard Redirect",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, Location: /Admin/Dashboard, DashStatus: 200, RoleSession: True"
+    },
+    {
+        "Id":  "SEC4-02",
+        "Category":  "Auth",
+        "Name":  "Valid Standard User Login and Employee Redirect",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, Location: /Employee/Index, RoleSession: True, UserPill: True"
+    },
+    {
+        "Id":  "SEC4-03",
+        "Category":  "Auth",
+        "Name":  "Invalid Password Rejected with Error Message",
+        "Passed":  true,
+        "Details":  "Status: 200, ErrorMsgPresent: True, SessionIsGuest: True"
+    },
+    {
+        "Id":  "SEC4-04",
+        "Category":  "Auth",
+        "Name":  "Non-Existent User Rejected with Error Message",
+        "Passed":  true,
+        "Details":  "Status: 200, ErrorMsgPresent: True"
+    },
+    {
+        "Id":  "SEC4-05",
+        "Category":  "Auth",
+        "Name":  "Empty Username Rejected by Model Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, ValidationMsgPresent: True"
+    },
+    {
+        "Id":  "SEC4-06",
+        "Category":  "Auth",
+        "Name":  "Empty Password Rejected by Model Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, ValidationMsgPresent: True"
+    },
+    {
+        "Id":  "SEC4-07",
+        "Category":  "Auth",
+        "Name":  "Both Fields Empty Shows Both Validation Errors",
+        "Passed":  true,
+        "Details":  "Status: 200, BothMsgPresent: True"
+    },
+    {
+        "Id":  "SEC4-08",
+        "Category":  "Security",
+        "Name":  "SQL Injection Attack Safely Rejected",
+        "Passed":  true,
+        "Details":  "Status: 200, RejectedWithoutLeak: True"
+    },
+    {
+        "Id":  "SEC5-01",
+        "Category":  "Security",
+        "Name":  "Open Redirect: http://evil.com Rejected",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, RedirectedTo: /Admin/Dashboard"
+    },
+    {
+        "Id":  "SEC5-02",
+        "Category":  "Security",
+        "Name":  "Open Redirect: https://attacker.org Rejected",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, RedirectedTo: /Admin/Dashboard"
+    },
+    {
+        "Id":  "SEC5-03",
+        "Category":  "Security",
+        "Name":  "Open Redirect: //evil.com/phish Rejected",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, RedirectedTo: /Admin/Dashboard"
+    },
+    {
+        "Id":  "SEC5-04",
+        "Category":  "Security",
+        "Name":  "Open Redirect: Backslash Evasion Rejected",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, RedirectedTo: /Admin/Dashboard"
+    },
+    {
+        "Id":  "SEC5-05",
+        "Category":  "Security",
+        "Name":  "Open Redirect: javascript: URI Rejected",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, RedirectedTo: /Admin/Dashboard"
+    },
+    {
+        "Id":  "SEC5-06",
+        "Category":  "Auth",
+        "Name":  "Open Redirect: Valid Local ReturnUrl Safely Preserved",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, RedirectedTo: /Employee/Details"
+    },
+    {
+        "Id":  "SEC6-01",
+        "Category":  "Register",
+        "Name":  "Duplicate Username Rejected with Explicit Message",
+        "Passed":  true,
+        "Details":  "Status: 200, ErrorMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-02",
+        "Category":  "Register",
+        "Name":  "Duplicate Email Rejected with Explicit Message",
+        "Passed":  true,
+        "Details":  "Status: 200, ErrorMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-03",
+        "Category":  "Register",
+        "Name":  "Username with Space Fails Regex Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, RegexMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-04",
+        "Category":  "Register",
+        "Name":  "Username with Symbols Fails Regex Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, RegexMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-05",
+        "Category":  "Register",
+        "Name":  "Username with Hyphen Fails Regex Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, RegexMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-06",
+        "Category":  "Register",
+        "Name":  "Username Shorter Than 3 Characters Fails Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, LengthMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-07",
+        "Category":  "Register",
+        "Name":  "Password Shorter Than 6 Characters Fails Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, PassLenMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-08",
+        "Category":  "Register",
+        "Name":  "Mismatched Confirmation Password Fails Validation",
+        "Passed":  true,
+        "Details":  "Status: 200, MismatchMsgPresent: True"
+    },
+    {
+        "Id":  "SEC6-09",
+        "Category":  "Register",
+        "Name":  "Valid Registration Creates Auto-Login Session",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, Location: /Employee/Index, SuccessMsg: True, Pill: True, Footer: True"
+    },
+    {
+        "Id":  "SEC6-10",
+        "Category":  "Register",
+        "Name":  "Newly Registered User Can Log In Independently",
+        "Passed":  true,
+        "Details":  "PostStatus: 302, Location: /Employee/Index, Authenticated: True"
+    },
+    {
+        "Id":  "SEC7-01",
+        "Category":  "Logout",
+        "Name":  "Pre-Logout: Verified Active Admin Session",
+        "Passed":  true,
+        "Details":  "DashboardStatus: 200, AuthenticatedAdmin: True"
+    },
+    {
+        "Id":  "SEC7-02",
+        "Category":  "Logout",
+        "Name":  "Logout Initiates 302 Redirect to /Account/Login",
+        "Passed":  true,
+        "Details":  "Status: 302, Location: /Account/Login"
+    },
+    {
+        "Id":  "SEC7-03",
+        "Category":  "Logout",
+        "Name":  "Defect D-01 Remediation: TempData InfoMessage Rendered",
+        "Passed":  true,
+        "Details":  "HasAlertInfo: True, HasSafeLogoutMsg: True"
+    },
+    {
+        "Id":  "SEC7-04",
+        "Category":  "Logout",
+        "Name":  "Session Cleared: Header and Footer Revert to Guest State",
+        "Passed":  true,
+        "Details":  "GuestInFooter: True, LoginInNav: True, NoLogoutBtn: True, NoUserPill: True"
+    },
+    {
+        "Id":  "SEC7-05",
+        "Category":  "Security",
+        "Name":  "Session Invalidation: Protected Admin Access Blocked",
+        "Passed":  true,
+        "Details":  "Intercepted: True (Location: /Account/Login?returnUrl=%2FAdmin%2FDashboard), RestrictedAlert: True"
+    }
+]

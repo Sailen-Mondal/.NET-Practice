@@ -5,121 +5,294 @@
 }
 
 <div class="container">
+    <!-- Breadcrumb Navigation -->
+    <nav class="notion-breadcrumb" aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-tertiary); margin-bottom: 12px;">
+        <a href="/Employee/Index" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+        <span aria-hidden="true">/</span>
+        <span style="color: var(--text-secondary);">Admin</span>
+        <span aria-hidden="true">/</span>
+        <span style="color: var(--text-dark); font-weight: 500;">Dashboard</span>
+    </nav>
+
+    <!-- Page Header -->
     <div class="page-header">
         <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="role-badge badge-admin">Administrator Console</span>
+                <span class="tag" style="font-size: 11px;">Live SQL Metrics</span>
+            </div>
             <h1 class="page-title">Administrator Dashboard</h1>
             <p class="page-subtitle">Real-time metrics, workforce analytics, and system management</p>
         </div>
-        <div>
-            <a href="/Employee/Create" class="btn btn-primary">+ Add New Employee</a>
-            <a href="/Admin/Users" class="btn btn-secondary" style="margin-left: 8px;">View All Users</a>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <a href="/Employee/Create" class="btn btn-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add New Employee</span>
+            </a>
+            <a href="/Admin/Users" class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>View All Users</span>
+            </a>
+            <a href="/Employee/Index" class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Manage Employees</span>
+            </a>
         </div>
     </div>
 
-    <!-- Metrics Overview Grid -->
+    <!-- 4 Prominent KPI Metric Cards -->
     <div class="metrics-grid">
+        <!-- 1. Total Employees -->
         <div class="metric-card">
-            <div class="metric-label">Total Employees</div>
+            <div class="metric-header">
+                <span class="metric-label">Total Employees</span>
+                <span class="metric-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </span>
+            </div>
             <div class="metric-value">@Model.TotalEmployees</div>
+            <div class="metric-meta">Active workforce records in database</div>
         </div>
+
+        <!-- 2. Registered Users -->
         <div class="metric-card">
-            <div class="metric-label">Registered Users</div>
+            <div class="metric-header">
+                <span class="metric-label">Registered Users</span>
+                <span class="metric-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </span>
+            </div>
             <div class="metric-value">@Model.TotalUsers</div>
+            <div class="metric-meta">System user accounts with login access</div>
         </div>
+
+        <!-- 3. Monthly Payroll -->
         <div class="metric-card">
-            <div class="metric-label">Monthly Payroll</div>
+            <div class="metric-header">
+                <span class="metric-label">Monthly Payroll</span>
+                <span class="metric-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                </span>
+            </div>
             <div class="metric-value">@Model.FormattedTotalPayroll</div>
+            <div class="metric-meta">Aggregated monthly compensation outlay</div>
         </div>
+
+        <!-- 4. Average Salary -->
         <div class="metric-card">
-            <div class="metric-label">Average Salary</div>
+            <div class="metric-header">
+                <span class="metric-label">Average Salary</span>
+                <span class="metric-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </span>
+            </div>
             <div class="metric-value">@Model.FormattedAverageSalary</div>
+            <div class="metric-meta">Mean compensation per employee</div>
         </div>
     </div>
 
     <!-- Department Distribution Card -->
-    <div class="card">
-        <h2 class="card-header">Workforce by Department</h2>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            @foreach (var dept in Model.DepartmentCounts)
-            {
-                <span class="tag" style="padding: 6px 12px; font-size: 13px;">
-                    <strong>@dept.Key:</strong> @dept.Value employee@(dept.Value > 1 ? "s" : "")
-                </span>
-            }
+    <div class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+            <div>
+                <h2 class="card-header" style="margin: 0; padding: 0; border: none; font-size: 15px;">Workforce by Department</h2>
+                <p class="card-subtitle" style="margin: 2px 0 0 0;">Headcount allocation and proportional department distribution</p>
+            </div>
+            <span class="tag" style="font-size: 11.5px;">@(Model.DepartmentCounts != null ? Model.DepartmentCounts.Count : 0) Departments</span>
         </div>
+
+        @if (Model.DepartmentCounts == null || !Model.DepartmentCounts.Any())
+        {
+            <div class="table-empty-state" style="padding: 24px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <p>No department allocation data available.</p>
+            </div>
+        }
+        else
+        {
+            <!-- Summary Tags for Test Compatibility & Quick Scanning -->
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+                @foreach (var dept in Model.DepartmentCounts)
+                {
+                    <span class="tag" style="padding: 5px 12px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background-color: var(--accent-dark);"></span>
+                        <strong>@dept.Key:</strong> @dept.Value employee@(dept.Value > 1 ? "s" : "")
+                    </span>
+                }
+            </div>
+
+            <!-- Proportional Progress Bars -->
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                @foreach (var dept in Model.DepartmentCounts)
+                {
+                    int count = dept.Value;
+                    int pct = Model.TotalEmployees > 0 ? (int)Math.Round((double)count * 100 / Model.TotalEmployees) : 0;
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="tag" style="font-weight: 600;">@dept.Key</span>
+                                <span style="color: var(--text-secondary); font-size: 12.5px;">@count employee@(count > 1 ? "s" : "")</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--text-dark); font-size: 12.5px;">@pct%</span>
+                        </div>
+                        <div style="height: 6px; background-color: var(--surface-subtle); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle);">
+                            <div style="height: 100%; background-color: var(--accent-dark); border-radius: var(--radius-full); width: @pct%; transition: width var(--transition-base);"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
 
     <!-- Recent Employees Table -->
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2 class="card-header" style="margin: 0; padding: 0; border: none;">Recent Employee Additions</h2>
-            <a href="/Employee/Index" class="action-link">View Full Directory &rarr;</a>
+    <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 24px;">
+        <!-- Recent Employees Table -->
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h2 class="card-header" style="margin: 0; padding: 0; border: none; font-size: 15px;">Recent Employees</h2>
+                <p class="card-subtitle" style="margin: 2px 0 0 0;">Latest additions to the workforce roster (Top 5)</p>
+            </div>
+            <a href="/Employee/Index" class="action-link" style="font-size: 13px;">View Full Directory &rarr;</a>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Salary</th>
-                    <th>Location</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var emp in Model.RecentEmployees)
-                {
+        <div class="notion-table-container table-responsive" style="margin-bottom: 0; border: none; border-radius: 0;">
+            <table class="notion-table">
+                <thead>
                     <tr>
-                        <td>@emp.EmployeeId</td>
-                        <td><strong>@emp.Name</strong></td>
-                        <td><span class="tag">@emp.Department</span></td>
-                        <td>@emp.FormattedSalary</td>
-                        <td>@emp.Location</td>
-                        <td>
-                            <div class="action-links">
-                                <a href="/Employee/Details/@emp.EmployeeId" class="action-link">View</a>
-                                <a href="/Employee/Edit/@emp.EmployeeId" class="action-link">Edit</a>
-                                <a href="/Employee/Delete/@emp.EmployeeId" class="action-link action-link-danger">Delete</a>
-                            </div>
-                        </td>
+                        <th style="width: 70px;">ID</th>
+                        <th>Name</th>
+                        <th style="width: 140px;">Department</th>
+                        <th style="width: 140px;">Salary</th>
+                        <th>Location</th>
+                        <th style="width: 170px; text-align: right;">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (Model.RecentEmployees == null || !Model.RecentEmployees.Any())
+                    {
+                        <tr>
+                            <td colspan="6">
+                                <div class="table-empty-state">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    <p>No recent employee records found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var emp in Model.RecentEmployees)
+                        {
+                            <tr>
+                                <td>@emp.EmployeeId</td>
+                                <td><strong>@emp.Name</strong></td>
+                                <td><span class="tag">@emp.Department</span></td>
+                                <td>@emp.FormattedSalary</td>
+                                <td>@emp.Location</td>
+                                <td style="text-align: right;">
+                                    <div class="action-links" style="justify-content: flex-end;">
+                                        <a href="/Employee/Details/@emp.EmployeeId" class="action-link">View</a>
+                                        <a href="/Employee/Edit/@emp.EmployeeId" class="action-link">Edit</a>
+                                        <a href="/Employee/Delete/@emp.EmployeeId" class="action-link action-link-danger">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Recent Users Table -->
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2 class="card-header" style="margin: 0; padding: 0; border: none;">Recent User Registrations</h2>
-            <a href="/Admin/Users" class="action-link">Manage Users &rarr;</a>
+    <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 24px;">
+        <!-- Recent Users Table -->
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h2 class="card-header" style="margin: 0; padding: 0; border: none; font-size: 15px;">Recent User Registrations</h2>
+                <p class="card-subtitle" style="margin: 2px 0 0 0;">Latest system account creations and credentials (Top 5)</p>
+            </div>
+            <a href="/Admin/Users" class="action-link" style="font-size: 13px;">Manage Users &rarr;</a>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Username</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Assigned Role</th>
-                    <th>Registration Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var u in Model.RecentUsers)
-                {
+        <div class="notion-table-container table-responsive" style="margin-bottom: 0; border: none; border-radius: 0;">
+            <table class="notion-table">
+                <thead>
                     <tr>
-                        <td>@u.UserId</td>
-                        <td><code>@u.Username</code></td>
-                        <td>@u.FullName</td>
-                        <td>@u.Email</td>
-                        <td>
-                            <span class="role-badge @(u.Role == "Admin" ? "badge-admin" : "badge-user")">@u.Role</span>
-                        </td>
-                        <td>@u.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <th style="width: 80px;">User ID</th>
+                        <th style="width: 140px;">Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th style="width: 130px;">Assigned Role</th>
+                        <th style="width: 150px;">Registration Date</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (Model.RecentUsers == null || !Model.RecentUsers.Any())
+                    {
+                        <tr>
+                            <td colspan="6">
+                                <div class="table-empty-state">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    <p>No recent user registrations found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var u in Model.RecentUsers)
+                        {
+                            <tr>
+                                <td>@u.UserId</td>
+                                <td><code>@u.Username</code></td>
+                                <td><strong>@u.FullName</strong></td>
+                                <td><a href="mailto:@u.Email" style="color: inherit; text-decoration: none;">@u.Email</a></td>
+                                <td>
+                                    <span class="role-badge @(string.Equals(u.Role, "Admin", System.StringComparison.OrdinalIgnoreCase) ? "badge-admin" : "badge-user")">@u.Role</span>
+                                </td>
+                                <td>@u.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

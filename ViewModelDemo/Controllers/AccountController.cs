@@ -84,7 +84,6 @@ namespace ViewModelDemo.Controllers
         public ActionResult Logout()
         {
             Session.Clear();
-            Session.Abandon();
             TempData["InfoMessage"] = "You have been logged out safely.";
             return RedirectToAction("Login", "Account");
         }

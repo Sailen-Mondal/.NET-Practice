@@ -8,6 +8,10 @@
 <div class="container">
     <div class="page-header">
         <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="tag" style="font-size: 11px;">Relational ADO.NET</span>
+                <span class="tag" style="font-size: 11px;">@Model.Count() Records</span>
+            </div>
             <h1 class="page-title">Employee Directory</h1>
             <p class="page-subtitle">Multi-table relational data managed through ViewModels and ADO.NET</p>
         </div>
@@ -25,9 +29,15 @@
 
     <!-- Search Form -->
     <div class="card" style="padding: 16px 20px; margin-bottom: 20px;">
-        @using (Html.BeginForm("Index", "Employee", FormMethod.Get, new { style = "display: flex; gap: 12px; align-items: center;" }))
+        @using (Html.BeginForm("Index", "Employee", FormMethod.Get, new { style = "display: flex; gap: 10px; align-items: center; flex-wrap: wrap;" }))
         {
-            <input type="text" name="search" value="@ViewBag.SearchTerm" placeholder="Search by name, department, or city..." class="form-control" style="flex: 1;" />
+            <div style="position: relative; flex: 1; min-width: 240px;">
+                <input type="text" name="search" value="@ViewBag.SearchTerm" placeholder="Search by name, department, or city..." class="form-control" style="padding-left: 36px;" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); pointer-events: none;" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
             <button type="submit" class="btn btn-primary btn-sm">Search</button>
             if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
             {
@@ -38,52 +48,64 @@
 
     <!-- Directory Table -->
     <div class="card" style="padding: 0; overflow: hidden;">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 70px;">ID</th>
-                    <th>Employee Name</th>
-                    <th>Gender</th>
-                    <th>Department</th>
-                    <th>Salary</th>
-                    <th>Location</th>
-                    <th style="width: 170px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Any())
-                {
+        <div class="table-responsive">
+            <table>
+                <thead>
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted);">
-                            No employee records found matching your search.
-                        </td>
+                        <th style="width: 70px;">ID</th>
+                        <th>Employee Name</th>
+                        <th style="width: 100px;">Gender</th>
+                        <th style="width: 130px;">Department</th>
+                        <th style="width: 140px;">Salary</th>
+                        <th>Location</th>
+                        <th style="width: 170px; text-align: right;">Actions</th>
                     </tr>
-                }
-                else
-                {
-                    foreach (var emp in Model)
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
                     {
                         <tr>
-                            <td>@emp.EmployeeId</td>
-                            <td><strong>@emp.Name</strong></td>
-                            <td>@emp.Gender</td>
-                            <td><span class="tag">@emp.Department</span></td>
-                            <td>@emp.FormattedSalary</td>
-                            <td>@emp.Location</td>
-                            <td>
-                                <div class="action-links">
-                                    <a href="/Employee/Details/@emp.EmployeeId" class="action-link">View</a>
-                                    @if (isAdmin)
+                            <td colspan="7">
+                                <div class="table-empty-state">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                    <p>No employee records found matching your search.</p>
+                                    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
                                     {
-                                        <a href="/Employee/Edit/@emp.EmployeeId" class="action-link">Edit</a>
-                                        <a href="/Employee/Delete/@emp.EmployeeId" class="action-link action-link-danger">Delete</a>
+                                        <a href="/Employee/Index" class="btn btn-secondary btn-sm" style="margin-top: 12px;">Reset Search Filter</a>
                                     }
                                 </div>
                             </td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
+                    else
+                    {
+                        foreach (var emp in Model)
+                        {
+                            <tr>
+                                <td>@emp.EmployeeId</td>
+                                <td><strong>@emp.Name</strong></td>
+                                <td>@emp.Gender</td>
+                                <td><span class="tag">@emp.Department</span></td>
+                                <td>@emp.FormattedSalary</td>
+                                <td>@emp.Location</td>
+                                <td style="text-align: right;">
+                                    <div class="action-links" style="justify-content: flex-end;">
+                                        <a href="/Employee/Details/@emp.EmployeeId" class="action-link">View</a>
+                                        @if (isAdmin)
+                                        {
+                                            <a href="/Employee/Edit/@emp.EmployeeId" class="action-link">Edit</a>
+                                            <a href="/Employee/Delete/@emp.EmployeeId" class="action-link action-link-danger">Delete</a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

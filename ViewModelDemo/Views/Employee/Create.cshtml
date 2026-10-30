@@ -6,6 +6,10 @@
 <div class="container" style="max-width: 680px;">
     <div class="page-header">
         <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="role-badge badge-admin">Transactional Create</span>
+                <span class="tag" style="font-size: 11px;">Addresses + Employees</span>
+            </div>
             <h1 class="page-title">@Model.PageHeader</h1>
             <p class="page-subtitle">Demonstrating multi-table data capture using a single ViewModel</p>
         </div>
@@ -14,60 +18,68 @@
         </div>
     </div>
 
-    @using (Html.BeginForm("Create", "Employee", FormMethod.Post))
+    @using (Html.BeginForm("Create", "Employee", FormMethod.Post, new { id = "createEmployeeForm" }))
     {
         @Html.AntiForgeryToken()
 
         if (!ViewData.ModelState.IsValid)
         {
-            <div class="alert alert-danger" style="margin-bottom: 20px;">
-                @Html.ValidationSummary(true, "")
+            <div class="alert alert-danger" role="alert" style="margin-bottom: 20px;">
+                <div class="alert-content">
+                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>@Html.ValidationSummary(true, "")</span>
+                </div>
             </div>
         }
 
         <!-- Section 1: Employee Basic Information -->
-        <div class="card">
+        <div class="card" style="margin-bottom: 20px;">
             <h2 class="card-header">1. Employee Personal & Work Information</h2>
 
             <div class="form-group">
                 <label class="form-label" for="Name">Full Name</label>
-                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "e.g. Rahul Sharma" })
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", id = "Name", placeholder = "e.g. Rahul Sharma", required = "required" })
                 @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="Gender">Gender</label>
-                    @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female", "Other" }), "-- Select Gender --", new { @class = "form-control" })
+                    @Html.DropDownListFor(m => m.Gender, new SelectList(new[] { "Male", "Female", "Other" }), "-- Select Gender --", new { @class = "form-control", id = "Gender", required = "required" })
                     @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="Department">Department</label>
-                    @Html.DropDownListFor(m => m.Department, new SelectList(new[] { "Engineering", "IT", "HR", "Finance", "Marketing", "Operations" }), "-- Select Department --", new { @class = "form-control" })
+                    @Html.DropDownListFor(m => m.Department, new SelectList(new[] { "Engineering", "IT", "HR", "Finance", "Marketing", "Operations" }), "-- Select Department --", new { @class = "form-control", id = "Department", required = "required" })
                     @Html.ValidationMessageFor(m => m.Department, "", new { @class = "text-danger" })
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="Salary">Monthly Salary (INR)</label>
-                @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", placeholder = "e.g. 75000", type = "number", step = "100" })
+                @Html.TextBoxFor(m => m.Salary, new { @class = "form-control", id = "Salary", placeholder = "e.g. 75000", type = "number", step = "100", required = "required" })
+                <div class="form-hint">Disbursed monthly in Indian Rupees (INR)</div>
                 @Html.ValidationMessageFor(m => m.Salary, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <!-- Section 2: Address Information -->
-        <div class="card">
+        <div class="card" style="margin-bottom: 20px;">
             <h2 class="card-header">2. Residential Address Information</h2>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="City">City</label>
-                    @Html.TextBoxFor(m => m.City, new { @class = "form-control", placeholder = "e.g. Bengaluru" })
+                    @Html.TextBoxFor(m => m.City, new { @class = "form-control", id = "City", placeholder = "e.g. Bengaluru", required = "required" })
                     @Html.ValidationMessageFor(m => m.City, "", new { @class = "text-danger" })
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="State">State</label>
-                    @Html.TextBoxFor(m => m.State, new { @class = "form-control", placeholder = "e.g. Karnataka" })
+                    @Html.TextBoxFor(m => m.State, new { @class = "form-control", id = "State", placeholder = "e.g. Karnataka", required = "required" })
                     @Html.ValidationMessageFor(m => m.State, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -75,12 +87,12 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="Country">Country</label>
-                    @Html.TextBoxFor(m => m.Country, new { @class = "form-control" })
+                    @Html.TextBoxFor(m => m.Country, new { @class = "form-control", id = "Country", required = "required" })
                     @Html.ValidationMessageFor(m => m.Country, "", new { @class = "text-danger" })
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="Pin">PIN Code</label>
-                    @Html.TextBoxFor(m => m.Pin, new { @class = "form-control", placeholder = "e.g. 560001" })
+                    @Html.TextBoxFor(m => m.Pin, new { @class = "form-control", id = "Pin", placeholder = "e.g. 560001", required = "required" })
                     @Html.ValidationMessageFor(m => m.Pin, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -88,7 +100,7 @@
 
         <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
             <a href="/Employee/Index" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">@Model.SubmitButtonText</button>
+            <button type="submit" class="btn btn-primary" style="font-weight: 600;">@Model.SubmitButtonText</button>
         </div>
     }
 </div>

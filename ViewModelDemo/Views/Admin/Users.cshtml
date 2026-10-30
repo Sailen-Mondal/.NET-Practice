@@ -1,46 +1,106 @@
 @model IEnumerable<ViewModelDemo.Models.User>
 @{
     ViewBag.Title = "System Users";
+    int userCount = Model != null ? Model.Count() : 0;
 }
 
 <div class="container">
+    <!-- Breadcrumb Navigation -->
+    <nav class="notion-breadcrumb" aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-tertiary); margin-bottom: 12px;">
+        <a href="/Employee/Index" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/Admin/Dashboard" style="color: var(--text-secondary); text-decoration: none;">Admin</a>
+        <span aria-hidden="true">/</span>
+        <span style="color: var(--text-dark); font-weight: 500;">Users</span>
+    </nav>
+
+    <!-- Page Header -->
     <div class="page-header">
         <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="role-badge badge-admin">Access Control</span>
+                <span class="tag" style="font-size: 11px;">@userCount Accounts</span>
+            </div>
             <h1 class="page-title">Registered System Users</h1>
-            <p class="page-subtitle">All user accounts with role permissions</p>
+            <p class="page-subtitle">Complete directory of system users, role authorizations, and account registration dates</p>
         </div>
         <div>
-            <a href="/Admin/Dashboard" class="btn btn-secondary">&larr; Back to Dashboard</a>
+            <a href="/Admin/Dashboard" class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 4px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span>Back to Dashboard</span>
+            </a>
         </div>
     </div>
 
-    <div class="card">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 80px;">ID</th>
-                    <th>Username</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th style="width: 120px;">Role</th>
-                    <th style="width: 160px;">Created Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Model)
-                {
+    <!-- Users Directory Data Table Card -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="notion-table-container table-responsive" style="margin-bottom: 0; border: none; border-radius: 0;">
+            <table class="notion-table">
+                <thead>
                     <tr>
-                        <td>@user.UserId</td>
-                        <td><code>@user.Username</code></td>
-                        <td><strong>@user.FullName</strong></td>
-                        <td>@user.Email</td>
-                        <td>
-                            <span class="role-badge @(user.Role == "Admin" ? "badge-admin" : "badge-user")">@user.Role</span>
-                        </td>
-                        <td>@user.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                        <th style="width: 80px;">ID</th>
+                        <th style="width: 150px;">Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th style="width: 130px;">Role</th>
+                        <th style="width: 180px;">Created Date</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6">
+                                <div class="table-empty-state">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    <p>No registered system users found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>@user.UserId</td>
+                                <td><code>@user.Username</code></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="user-avatar" style="width: 24px; height: 24px; font-size: 11px;" aria-hidden="true">
+                                            @(string.IsNullOrEmpty(user.FullName) ? "U" : user.FullName.Substring(0, 1).ToUpper())
+                                        </span>
+                                        <strong>@user.FullName</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="mailto:@user.Email" style="display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary); flex-shrink: 0;" aria-hidden="true">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                        <span>@user.Email</span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="role-badge @(string.Equals(user.Role, "Admin", System.StringComparison.OrdinalIgnoreCase) ? "badge-admin" : "badge-user")">@user.Role</span>
+                                </td>
+                                <td>
+                                    <time datetime="@user.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")" style="color: var(--text-secondary); font-size: 13px;">
+                                        @user.CreatedAt.ToString("MMM dd, yyyy HH:mm")
+                                    </time>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

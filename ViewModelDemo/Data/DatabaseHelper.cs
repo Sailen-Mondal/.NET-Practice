@@ -682,7 +682,7 @@ namespace ViewModelDemo.Data
                 new Student { RollNo = 1, Name = "Ankur", Marks = 34 },
                 new Student { RollNo = 2, Name = "Dhrumit", Marks = 79 },
                 new Student { RollNo = 3, Name = "Mannan", Marks = 67 },
-                new Student { RollNo = 4, Name = "Priya", Marks = 88 },
+                new Student { RollNo = 4, Name = "Priya Sharma", Marks = 88.5 },
                 new Student { RollNo = 5, Name = "Amit", Marks = 31 }
             };
         }

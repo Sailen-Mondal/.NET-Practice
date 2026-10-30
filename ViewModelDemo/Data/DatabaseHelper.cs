@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using ViewModelDemo.Models;
 using ViewModelDemo.ViewModels;
@@ -16,7 +17,7 @@ namespace ViewModelDemo.Data
         }
 
         // =====================================================================
-        // User Authentication (Role-based: Admin vs User)
+        // User Authentication (Role-based: Admin vs User via Stored Procedures)
         // =====================================================================
 
         public static UserSession ValidateUser(string usernameOrEmail, string password)
@@ -29,14 +30,9 @@ namespace ViewModelDemo.Data
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();
-                    string sql = @"
-                        SELECT UserId, Username, Email, FullName, Role
-                        FROM dbo.Users
-                        WHERE (Username = @Input OR Email = @Input)
-                          AND PasswordHash = @Password";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_ValidateUser", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@Input", usernameOrEmail.Trim());
                         cmd.Parameters.AddWithValue("@Password", password);
 
@@ -86,35 +82,28 @@ namespace ViewModelDemo.Data
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();
-
-                    // Check if username or email already exists
-                    string checkSql = "SELECT COUNT(1) FROM dbo.Users WHERE Username = @Username OR Email = @Email";
-                    using (SqlCommand checkCmd = new SqlCommand(checkSql, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_RegisterUser", conn))
                     {
-                        checkCmd.Parameters.AddWithValue("@Username", model.Username.Trim());
-                        checkCmd.Parameters.AddWithValue("@Email", model.Email.Trim());
-                        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-                        if (count > 0)
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Username", model.Username.Trim());
+                        cmd.Parameters.AddWithValue("@Email", model.Email.Trim().ToLowerInvariant());
+                        cmd.Parameters.AddWithValue("@Password", model.Password);
+                        cmd.Parameters.AddWithValue("@FullName", model.FullName.Trim());
+
+                        SqlParameter outId = new SqlParameter("@NewUserId", SqlDbType.Int) { Direction = ParameterDirection.Output };
+                        SqlParameter outErr = new SqlParameter("@ErrorMessage", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
+                        cmd.Parameters.Add(outId);
+                        cmd.Parameters.Add(outErr);
+
+                        cmd.ExecuteNonQuery();
+
+                        string errMsg = outErr.Value != DBNull.Value ? outErr.Value?.ToString() : null;
+                        if (!string.IsNullOrEmpty(errMsg))
                         {
-                            return (false, "A user with this username or email already exists.", null);
+                            return (false, errMsg, null);
                         }
-                    }
 
-                    // Insert new user with 'User' role
-                    string insertSql = @"
-                        INSERT INTO dbo.Users (Username, Email, PasswordHash, FullName, Role, CreatedAt)
-                        VALUES (@Username, @Email, @Password, @FullName, 'User', GETDATE());
-                        SELECT SCOPE_IDENTITY();";
-
-                    using (SqlCommand insertCmd = new SqlCommand(insertSql, conn))
-                    {
-                        insertCmd.Parameters.AddWithValue("@Username", model.Username.Trim());
-                        insertCmd.Parameters.AddWithValue("@Email", model.Email.Trim().ToLowerInvariant());
-                        insertCmd.Parameters.AddWithValue("@Password", model.Password);
-                        insertCmd.Parameters.AddWithValue("@FullName", model.FullName.Trim());
-
-                        int newId = Convert.ToInt32(insertCmd.ExecuteScalar());
-
+                        int newId = Convert.ToInt32(outId.Value);
                         UserSession session = new UserSession
                         {
                             UserId = newId,
@@ -145,21 +134,23 @@ namespace ViewModelDemo.Data
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();
-                    string sql = "SELECT UserId, Username, Email, FullName, Role, CreatedAt FROM dbo.Users ORDER BY UserId DESC";
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetAllUsers", conn))
                     {
-                        while (reader.Read())
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            list.Add(new User
+                            while (reader.Read())
                             {
-                                UserId = Convert.ToInt32(reader["UserId"]),
-                                Username = reader["Username"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                FullName = reader["FullName"].ToString(),
-                                Role = reader["Role"].ToString(),
-                                CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
-                            });
+                                list.Add(new User
+                                {
+                                    UserId = Convert.ToInt32(reader["UserId"]),
+                                    Username = reader["Username"].ToString(),
+                                    Email = reader["Email"].ToString(),
+                                    FullName = reader["FullName"].ToString(),
+                                    Role = reader["Role"].ToString(),
+                                    CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                                });
+                            }
                         }
                     }
                 }
@@ -175,7 +166,7 @@ namespace ViewModelDemo.Data
         }
 
         // =====================================================================
-        // Admin Dashboard Metrics
+        // Admin Dashboard Metrics via Stored Procedure
         // =====================================================================
 
         public static AdminDashboardViewModel GetAdminDashboardData()
@@ -189,87 +180,65 @@ namespace ViewModelDemo.Data
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();
-
-                    // Aggregates for Employees
-                    string empStatsSql = @"
-                        SELECT COUNT(1) AS TotalCount,
-                               ISNULL(SUM(Salary), 0) AS TotalSalary,
-                               ISNULL(AVG(Salary), 0) AS AvgSalary
-                        FROM dbo.Employees";
-
-                    using (SqlCommand cmd = new SqlCommand(empStatsSql, conn))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetAdminDashboardStats", conn))
                     {
-                        if (reader.Read())
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            vm.TotalEmployees = Convert.ToInt32(reader["TotalCount"]);
-                            vm.TotalPayroll = Convert.ToDecimal(reader["TotalSalary"]);
-                            vm.AverageSalary = Convert.ToDecimal(reader["AvgSalary"]);
-                        }
-                    }
-
-                    // Total Users
-                    string userCountSql = "SELECT COUNT(1) FROM dbo.Users";
-                    using (SqlCommand cmd = new SqlCommand(userCountSql, conn))
-                    {
-                        vm.TotalUsers = Convert.ToInt32(cmd.ExecuteScalar());
-                    }
-
-                    // Department Breakdown
-                    string deptSql = "SELECT Department, COUNT(1) AS Cnt FROM dbo.Employees GROUP BY Department";
-                    using (SqlCommand cmd = new SqlCommand(deptSql, conn))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            vm.DepartmentCounts[reader["Department"].ToString()] = Convert.ToInt32(reader["Cnt"]);
-                        }
-                    }
-
-                    // Recent Employees (Top 5)
-                    string recentEmpSql = @"
-                        SELECT TOP 5 e.EmployeeId, e.Name, e.Gender, e.Department, e.Salary, e.AddressId,
-                                     a.City, a.State, a.Country
-                        FROM dbo.Employees e
-                        INNER JOIN dbo.Addresses a ON e.AddressId = a.AddressId
-                        ORDER BY e.EmployeeId DESC";
-
-                    using (SqlCommand cmd = new SqlCommand(recentEmpSql, conn))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            vm.RecentEmployees.Add(new EmployeeListItemViewModel
+                            // Result 1: Aggregates
+                            if (reader.Read())
                             {
-                                EmployeeId = Convert.ToInt32(reader["EmployeeId"]),
-                                Name = reader["Name"].ToString(),
-                                Gender = reader["Gender"].ToString(),
-                                Department = reader["Department"].ToString(),
-                                Salary = Convert.ToDecimal(reader["Salary"]),
-                                AddressId = Convert.ToInt32(reader["AddressId"]),
-                                City = reader["City"].ToString(),
-                                State = reader["State"].ToString(),
-                                Country = reader["Country"].ToString()
-                            });
-                        }
-                    }
+                                vm.TotalEmployees = Convert.ToInt32(reader["TotalEmployees"]);
+                                vm.TotalPayroll = Convert.ToDecimal(reader["TotalPayroll"]);
+                                vm.AverageSalary = Convert.ToDecimal(reader["AvgSalary"]);
+                                vm.TotalUsers = Convert.ToInt32(reader["TotalUsers"]);
+                            }
 
-                    // Recent Users (Top 5)
-                    string recentUserSql = "SELECT TOP 5 UserId, Username, Email, FullName, Role, CreatedAt FROM dbo.Users ORDER BY UserId DESC";
-                    using (SqlCommand cmd = new SqlCommand(recentUserSql, conn))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            vm.RecentUsers.Add(new User
+                            // Result 2: Department breakdown
+                            if (reader.NextResult())
                             {
-                                UserId = Convert.ToInt32(reader["UserId"]),
-                                Username = reader["Username"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                FullName = reader["FullName"].ToString(),
-                                Role = reader["Role"].ToString(),
-                                CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
-                            });
+                                while (reader.Read())
+                                {
+                                    vm.DepartmentCounts[reader["Department"].ToString()] = Convert.ToInt32(reader["Cnt"]);
+                                }
+                            }
+
+                            // Result 3: Recent Employees (Top 5)
+                            if (reader.NextResult())
+                            {
+                                while (reader.Read())
+                                {
+                                    vm.RecentEmployees.Add(new EmployeeListItemViewModel
+                                    {
+                                        EmployeeId = Convert.ToInt32(reader["EmployeeId"]),
+                                        Name = reader["Name"].ToString(),
+                                        Gender = reader["Gender"].ToString(),
+                                        Department = reader["Department"].ToString(),
+                                        Salary = Convert.ToDecimal(reader["Salary"]),
+                                        AddressId = Convert.ToInt32(reader["AddressId"]),
+                                        City = reader["City"].ToString(),
+                                        State = reader["State"].ToString(),
+                                        Country = reader["Country"].ToString()
+                                    });
+                                }
+                            }
+
+                            // Result 4: Recent Users (Top 5)
+                            if (reader.NextResult())
+                            {
+                                while (reader.Read())
+                                {
+                                    vm.RecentUsers.Add(new User
+                                    {
+                                        UserId = Convert.ToInt32(reader["UserId"]),
+                                        Username = reader["Username"].ToString(),
+                                        Email = reader["Email"].ToString(),
+                                        FullName = reader["FullName"].ToString(),
+                                        Role = reader["Role"].ToString(),
+                                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                                    });
+                                }
+                            }
                         }
                     }
                 }
@@ -291,7 +260,7 @@ namespace ViewModelDemo.Data
         }
 
         // =====================================================================
-        // Employee CRUD Operations (Multi-table ViewModels & Transactions)
+        // Employee CRUD Operations via Stored Procedures
         // =====================================================================
 
         public static List<EmployeeListItemViewModel> GetAllEmployees(string searchTerm = null)
@@ -305,24 +274,16 @@ namespace ViewModelDemo.Data
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();
-                    string sql = @"
-                        SELECT e.EmployeeId, e.Name, e.Gender, e.Department, e.Salary, e.AddressId,
-                               a.City, a.State, a.Country
-                        FROM dbo.Employees e
-                        INNER JOIN dbo.Addresses a ON e.AddressId = a.AddressId";
-
-                    if (!string.IsNullOrWhiteSpace(searchTerm))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetAllEmployees", conn))
                     {
-                        sql += " WHERE e.Name LIKE @Search OR e.Department LIKE @Search OR a.City LIKE @Search";
-                    }
-
-                    sql += " ORDER BY e.EmployeeId ASC";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
-                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         if (!string.IsNullOrWhiteSpace(searchTerm))
                         {
-                            cmd.Parameters.AddWithValue("@Search", "%" + searchTerm.Trim() + "%");
+                            cmd.Parameters.AddWithValue("@Search", searchTerm.Trim());
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@Search", DBNull.Value);
                         }
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -368,16 +329,11 @@ namespace ViewModelDemo.Data
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();
-                    string sql = @"
-                        SELECT e.EmployeeId, e.Name, e.Gender, e.Department, e.Salary, e.AddressId,
-                               a.Country, a.State, a.City, a.Pin
-                        FROM dbo.Employees e
-                        INNER JOIN dbo.Addresses a ON e.AddressId = a.AddressId
-                        WHERE e.EmployeeId = @EmployeeId";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetEmployeeWithAddress", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@EmployeeId", employeeId);
+
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
@@ -432,87 +388,37 @@ namespace ViewModelDemo.Data
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-                using (SqlTransaction trans = conn.BeginTransaction())
+                using (SqlCommand cmd = new SqlCommand("dbo.sp_SaveEmployee", conn))
                 {
-                    try
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    SqlParameter empParam = new SqlParameter("@EmployeeId", SqlDbType.Int)
                     {
-                        if (model.EmployeeId == 0)
-                        {
-                            // CREATE: Insert Address first
-                            string insertAddrSql = @"
-                                INSERT INTO dbo.Addresses (Country, State, City, Pin)
-                                VALUES (@Country, @State, @City, @Pin);
-                                SELECT SCOPE_IDENTITY();";
-
-                            int newAddressId;
-                            using (SqlCommand cmd = new SqlCommand(insertAddrSql, conn, trans))
-                            {
-                                cmd.Parameters.AddWithValue("@Country", model.Country);
-                                cmd.Parameters.AddWithValue("@State", model.State);
-                                cmd.Parameters.AddWithValue("@City", model.City);
-                                cmd.Parameters.AddWithValue("@Pin", model.Pin);
-                                newAddressId = Convert.ToInt32(cmd.ExecuteScalar());
-                            }
-
-                            // Insert Employee referencing new AddressId
-                            string insertEmpSql = @"
-                                INSERT INTO dbo.Employees (Name, Gender, Department, Salary, AddressId)
-                                VALUES (@Name, @Gender, @Department, @Salary, @AddressId);
-                                SELECT SCOPE_IDENTITY();";
-
-                            using (SqlCommand cmd = new SqlCommand(insertEmpSql, conn, trans))
-                            {
-                                cmd.Parameters.AddWithValue("@Name", model.Name);
-                                cmd.Parameters.AddWithValue("@Gender", model.Gender);
-                                cmd.Parameters.AddWithValue("@Department", model.Department);
-                                cmd.Parameters.AddWithValue("@Salary", model.Salary);
-                                cmd.Parameters.AddWithValue("@AddressId", newAddressId);
-                                model.EmployeeId = Convert.ToInt32(cmd.ExecuteScalar());
-                            }
-                        }
-                        else
-                        {
-                            // UPDATE: Update Address
-                            string updateAddrSql = @"
-                                UPDATE dbo.Addresses
-                                SET Country = @Country, State = @State, City = @City, Pin = @Pin
-                                WHERE AddressId = @AddressId";
-
-                            using (SqlCommand cmd = new SqlCommand(updateAddrSql, conn, trans))
-                            {
-                                cmd.Parameters.AddWithValue("@Country", model.Country);
-                                cmd.Parameters.AddWithValue("@State", model.State);
-                                cmd.Parameters.AddWithValue("@City", model.City);
-                                cmd.Parameters.AddWithValue("@Pin", model.Pin);
-                                cmd.Parameters.AddWithValue("@AddressId", model.AddressId);
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            // Update Employee
-                            string updateEmpSql = @"
-                                UPDATE dbo.Employees
-                                SET Name = @Name, Gender = @Gender, Department = @Department, Salary = @Salary
-                                WHERE EmployeeId = @EmployeeId";
-
-                            using (SqlCommand cmd = new SqlCommand(updateEmpSql, conn, trans))
-                            {
-                                cmd.Parameters.AddWithValue("@Name", model.Name);
-                                cmd.Parameters.AddWithValue("@Gender", model.Gender);
-                                cmd.Parameters.AddWithValue("@Department", model.Department);
-                                cmd.Parameters.AddWithValue("@Salary", model.Salary);
-                                cmd.Parameters.AddWithValue("@EmployeeId", model.EmployeeId);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-
-                        trans.Commit();
-                        return true;
-                    }
-                    catch
+                        Direction = ParameterDirection.InputOutput,
+                        Value = model.EmployeeId
+                    };
+                    SqlParameter addrParam = new SqlParameter("@AddressId", SqlDbType.Int)
                     {
-                        trans.Rollback();
-                        throw;
-                    }
+                        Direction = ParameterDirection.InputOutput,
+                        Value = model.AddressId
+                    };
+
+                    cmd.Parameters.Add(empParam);
+                    cmd.Parameters.Add(addrParam);
+                    cmd.Parameters.AddWithValue("@Name", model.Name);
+                    cmd.Parameters.AddWithValue("@Gender", model.Gender);
+                    cmd.Parameters.AddWithValue("@Department", model.Department);
+                    cmd.Parameters.AddWithValue("@Salary", model.Salary);
+                    cmd.Parameters.AddWithValue("@Country", model.Country ?? "India");
+                    cmd.Parameters.AddWithValue("@State", model.State ?? "");
+                    cmd.Parameters.AddWithValue("@City", model.City ?? "");
+                    cmd.Parameters.AddWithValue("@Pin", model.Pin ?? "");
+
+                    cmd.ExecuteNonQuery();
+
+                    model.EmployeeId = Convert.ToInt32(empParam.Value);
+                    model.AddressId = Convert.ToInt32(addrParam.Value);
+                    return true;
                 }
             }
         }
@@ -525,50 +431,12 @@ namespace ViewModelDemo.Data
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-                using (SqlTransaction trans = conn.BeginTransaction())
+                using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteEmployee", conn))
                 {
-                    try
-                    {
-                        // 1. Find AddressId
-                        int addressId = 0;
-                        string findSql = "SELECT AddressId FROM dbo.Employees WHERE EmployeeId = @EmployeeId";
-                        using (SqlCommand cmd = new SqlCommand(findSql, conn, trans))
-                        {
-                            cmd.Parameters.AddWithValue("@EmployeeId", employeeId);
-                            object result = cmd.ExecuteScalar();
-                            if (result != null && result != DBNull.Value)
-                            {
-                                addressId = Convert.ToInt32(result);
-                            }
-                        }
-
-                        // 2. Delete Employee
-                        string delEmpSql = "DELETE FROM dbo.Employees WHERE EmployeeId = @EmployeeId";
-                        using (SqlCommand cmd = new SqlCommand(delEmpSql, conn, trans))
-                        {
-                            cmd.Parameters.AddWithValue("@EmployeeId", employeeId);
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        // 3. Delete Address
-                        if (addressId > 0)
-                        {
-                            string delAddrSql = "DELETE FROM dbo.Addresses WHERE AddressId = @AddressId";
-                            using (SqlCommand cmd = new SqlCommand(delAddrSql, conn, trans))
-                            {
-                                cmd.Parameters.AddWithValue("@AddressId", addressId);
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-
-                        trans.Commit();
-                        return true;
-                    }
-                    catch
-                    {
-                        trans.Rollback();
-                        throw;
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmployeeId", employeeId);
+                    cmd.ExecuteNonQuery();
+                    return true;
                 }
             }
         }
@@ -587,16 +455,11 @@ namespace ViewModelDemo.Data
                     using (SqlConnection conn = new SqlConnection(connStr))
                     {
                         conn.Open();
-                        string sql = @"
-                            SELECT e.EmployeeId, e.Name, e.Gender, e.Department, e.Salary, e.AddressId,
-                                   a.Country, a.State, a.City, a.Pin
-                            FROM dbo.Employees e
-                            INNER JOIN dbo.Addresses a ON e.AddressId = a.AddressId
-                            WHERE e.EmployeeId = @EmployeeId";
-
-                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                        using (SqlCommand cmd = new SqlCommand("dbo.sp_GetEmployeeWithAddress", conn))
                         {
+                            cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.AddWithValue("@EmployeeId", employeeId);
+
                             using (SqlDataReader reader = cmd.ExecuteReader())
                             {
                                 if (reader.Read())
@@ -648,25 +511,26 @@ namespace ViewModelDemo.Data
                     using (SqlConnection conn = new SqlConnection(connStr))
                     {
                         conn.Open();
-                        string sql = "SELECT RollNo, Name, Marks FROM dbo.Students ORDER BY RollNo ASC";
-
-                        using (SqlCommand cmd = new SqlCommand(sql, conn))
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (SqlCommand cmd = new SqlCommand("dbo.sp_GetStudents", conn))
                         {
-                            List<Student> list = new List<Student>();
-                            while (reader.Read())
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            using (SqlDataReader reader = cmd.ExecuteReader())
                             {
-                                list.Add(new Student
+                                List<Student> list = new List<Student>();
+                                while (reader.Read())
                                 {
-                                    RollNo = Convert.ToInt32(reader["RollNo"]),
-                                    Name = reader["Name"].ToString(),
-                                    Marks = Convert.ToDouble(reader["Marks"])
-                                });
-                            }
+                                    list.Add(new Student
+                                    {
+                                        RollNo = Convert.ToInt32(reader["RollNo"]),
+                                        Name = reader["Name"].ToString(),
+                                        Marks = Convert.ToDouble(reader["Marks"])
+                                    });
+                                }
 
-                            if (list.Count > 0)
-                            {
-                                return list;
+                                if (list.Count > 0)
+                                {
+                                    return list;
+                                }
                             }
                         }
                     }
